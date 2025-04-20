@@ -3,7 +3,7 @@ from sqlalchemy import String, UUID
 from dataclasses import dataclass
 from passlib.hash import bcrypt
 
-from config import Base
+from app.config import Base
 
 
 @dataclass
