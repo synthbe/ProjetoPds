@@ -1,18 +1,16 @@
 from dataclasses import dataclass
 from sqlalchemy.orm import Session
 
-from models.user_model import User
-from schemas.user_schema import UserCreate, UserUpdate
+from app.models import User
+from app.schemas import UserCreate, UserUpdate
+
 
 @dataclass
 class UserRepository:
     db: Session
 
     def create(self, user_data: UserCreate) -> User:
-        user = User(
-            username=user_data.username,
-            email=user_data.email
-        )
+        user = User(username=user_data.username, email=user_data.email)
         user.set_password(user_data.password)
 
         self.db.add(user)
@@ -27,10 +25,9 @@ class UserRepository:
     def update(self, user_data: UserUpdate, user_id: int) -> User | None:
         user = self.get_by_id(user_id)
         if not user:
-            pass # Raise error
+            pass  # Raise error
 
         if user_data.username is not None:
             user.username = user_data.username
 
         return user
-

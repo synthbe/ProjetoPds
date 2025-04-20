@@ -3,7 +3,8 @@ from sqlalchemy import String, UUID
 from dataclasses import dataclass
 from passlib.hash import bcrypt
 
-from app.db import Base
+from config import Base
+
 
 @dataclass
 class User(Base):
