@@ -1,4 +1,10 @@
 from app.infrastructure import DatabaseInitializer
+from fastapi import FastAPI
 
-if __name__ == "__main__":
-    DatabaseInitializer.run()
+DatabaseInitializer.run()
+app = FastAPI()
+
+
+@app.get("/")
+def root():
+    return {"Hello": "World"}
