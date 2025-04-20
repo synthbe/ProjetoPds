@@ -1,19 +1,19 @@
-from app.factories.logger_factory import LoggerFactory
+from app.factories import LoggerFactory
 
 
 class Logger:
     @staticmethod
-    def info(message: str):
-        LoggerFactory.get_logger().info(message)
+    def info(name: str, message: str):
+        LoggerFactory.get_logger(name).info(message)
 
     @staticmethod
-    def warning(message: str):
-        LoggerFactory.get_logger().warning(message)
+    def warning(name: str, message: str):
+        LoggerFactory.get_logger(name).warning(message)
 
     @staticmethod
-    def error(message: str):
-        LoggerFactory.get_logger().error(message)
+    def error(name: str, message: str):
+        LoggerFactory.get_logger(name).error(message)
 
     @staticmethod
-    def debug(message: str):
-        LoggerFactory.get_logger().debug(message)
+    def debug(name: str, message: str):
+        LoggerFactory.get_logger(name).debug(message)
