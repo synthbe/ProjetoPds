@@ -14,4 +14,5 @@ dependencies = [
     "pwdlib[argon2]>=0.2.1",
     "pyjwt>=2.10.1",
     "tzdata>=2025.2",
+    "gitpython>=3.1.44",
 ]
