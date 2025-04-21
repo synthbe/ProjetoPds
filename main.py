@@ -1,11 +1,10 @@
-from fastapi import FastAPI, Depends, APIRouter
+from fastapi import FastAPI
 
 from app.infrastructure import DatabaseInitializer
 from app.config.middleware import MiddlewareManager
 from app.router import Router
-from app.dependencies.auth_guard import AuthGuard
-from app.models.user_model import User
 
+from fastapi.openapi.utils import get_openapi
 
 DatabaseInitializer.run()
 
@@ -15,12 +14,25 @@ MiddlewareManager(app).setup()
 
 Router(app).register()
 
-router = APIRouter()
+
+def custom_openapi():
+    if app.openapi_schema:
+        return app.openapi_schema
+    openapi_schema = get_openapi(
+        title="Seu Projeto com Auth",
+        version="1.0.0",
+        description="API com autenticação via token Bearer",
+        routes=app.routes,
+    )
+    openapi_schema["components"]["securitySchemes"] = {
+        "BearerAuth": {"type": "http", "scheme": "bearer", "bearerFormat": "JWT"}
+    }
+    for path in openapi_schema["paths"].values():
+        for method in path.values():
+            method.setdefault("security", []).append({"BearerAuth": []})
+
+    app.openapi_schema = openapi_schema
+    return app.openapi_schema
 
 
-@router.get("/me")
-def get_profile(current_user: User = Depends(AuthGuard.get_authenticated_user)):
-    return {"email": current_user.email}
-
-
-app.include_router(router)
+app.openapi = custom_openapi
