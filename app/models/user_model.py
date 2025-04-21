@@ -1,25 +1,17 @@
+import uuid
 from sqlalchemy.orm import Mapped, mapped_column
-from sqlalchemy import String, UUID
-from dataclasses import dataclass
-from passlib.hash import bcrypt
+from sqlalchemy import String
+from sqlalchemy.dialects.postgresql import UUID as pgUUID
 
-from app.config import Base
+from app.config import BaseModel
 
 
-@dataclass
-class User(Base):
+class User(BaseModel):
     __tablename__ = "users"
 
-    id: Mapped[int] = mapped_column(UUID, primary_key=True)
-    username: Mapped[str] = mapped_column(String(50), unique=True, nullable=False)
-    email: Mapped[str] = mapped_column(String(120), unique=True, nullable=False)
-    password_hash: Mapped[str] = mapped_column(String(128), nullable=False)
-
-    def __repr__(self) -> str:
-        return f"<User(username={self.username!r}, email={self.email!r})>"
-
-    def set_password(self, password_raw: str) -> None:
-        self.password_hash = bcrypt.hash(password_raw)
-
-    def verify_password(self, password_raw: str) -> bool:
-        return bcrypt.verify(password_raw, self.password_hash)
+    id: Mapped[uuid.UUID] = mapped_column(
+        pgUUID(as_uuid=True), primary_key=True, default=uuid.uuid4
+    )
+    name: Mapped[str] = mapped_column(String(50))
+    email: Mapped[str] = mapped_column(String(50), unique=True, index=True)
+    hashed_password: Mapped[str] = mapped_column(String(255))
