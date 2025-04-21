@@ -15,7 +15,7 @@ class ExceptionHandlerMiddleware(BaseHTTPMiddleware):
             return JSONResponse(
                 status_code=e.status_code, content={"message": e.message}
             )
-        except Exception as e:
+        except Exception as e:  # pylint: disable=broad-exception-caught
             Logger.error(f"{request.method} {request.url.path}", str(e))
             return JSONResponse(
                 status_code=500, content={"message": "Internal Server Error"}
