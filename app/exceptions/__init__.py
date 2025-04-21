@@ -2,3 +2,4 @@ from .base_exception import AppBaseException
 from .conflict_exception import ConflictException
 from .invalid_credentials_exception import InvalidCredentialsException
 from .not_found_exception import NotFoundException
+from .unauthorized_exception import UnauthorizedException
