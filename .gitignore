@@ -7,3 +7,7 @@ __pycache__/
 
 # Ignorar arquivos de distribuição do pacote Python (egg-info)
 *.egg-info/
+
+# Ignorar arquivos de build
+build/
+dist/

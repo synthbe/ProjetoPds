@@ -6,9 +6,12 @@ readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "fastapi>=0.115.12",
-    "passlib>=1.7.4",
     "sqlalchemy>=2.0.40",
     "uvicorn>=0.34.2",
     "psycopg2>=2.9.10",
+    "pydantic[email]>=2.11.3",
     "pydantic-settings>=2.9.1",
+    "pwdlib[argon2]>=0.2.1",
+    "pyjwt>=2.10.1",
+    "tzdata>=2025.2",
 ]

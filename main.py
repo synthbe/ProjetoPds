@@ -1,10 +1,14 @@
-from app.infrastructure import DatabaseInitializer
 from fastapi import FastAPI
 
+from app.infrastructure import DatabaseInitializer
+from app.config.middleware import MiddlewareManager
+from app.router import Router
+
+
 DatabaseInitializer.run()
+
 app = FastAPI()
 
+MiddlewareManager(app).setup()
 
-@app.get("/")
-def root():
-    return {"Hello": "World"}
+Router(app).register()

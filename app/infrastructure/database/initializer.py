@@ -1,4 +1,4 @@
-from app.config import Base
+from app.config import BaseModel
 from .session_manager import DatabaseSessionManager
 from .creator import DatabaseCreator
 
@@ -11,4 +11,4 @@ class DatabaseInitializer:
 
         database_engine = DatabaseSessionManager().get_engine()
 
-        Base.metadata.create_all(bind=database_engine)
+        BaseModel.metadata.create_all(bind=database_engine)

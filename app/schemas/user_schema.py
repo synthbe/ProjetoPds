@@ -1,13 +1,10 @@
-from dataclasses import dataclass
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, ConfigDict
+from uuid import UUID
 
 
-@dataclass
-class UserCreate(BaseModel):
-    username: str
+class UserResponse(BaseModel):
+    id: UUID
+    name: str
     email: EmailStr
-    password: str
 
-
-class UserUpdate(BaseModel):
-    username: str | None = None
+    model_config = ConfigDict(from_attributes=True)
