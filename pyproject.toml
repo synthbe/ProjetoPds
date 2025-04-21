@@ -12,4 +12,6 @@ dependencies = [
     "pydantic[email]>=2.11.3",
     "pydantic-settings>=2.9.1",
     "pwdlib[argon2]>=0.2.1",
+    "pyjwt>=2.10.1",
+    "tzdata>=2025.2",
 ]
