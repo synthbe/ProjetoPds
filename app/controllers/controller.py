@@ -1,10 +1,8 @@
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
 
 from fastapi import APIRouter
 
 
-@dataclass
 class BaseController(ABC):
     def __init__(self, tags: list = []):
         self._router = APIRouter(tags=tags)
