@@ -1,10 +1,7 @@
-from typing import Optional
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 
-from fastapi import APIRouter, Header, Depends
-
-from app.dependencies import AuthGuard
+from fastapi import APIRouter
 
 
 @dataclass
