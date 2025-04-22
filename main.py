@@ -2,9 +2,8 @@ from fastapi import FastAPI
 
 from app.infrastructure import DatabaseInitializer
 from app.config.middleware import MiddlewareManager
-from app.config.swagger import SwaggerConfig
 from app.router import Router
-
+from app.config.swagger import SwaggerConfig
 
 DatabaseInitializer.run()
 
@@ -14,4 +13,4 @@ MiddlewareManager(app).setup()
 
 Router(app).register()
 
-app.openapi = SwaggerConfig(app)
+app.openapi = SwaggerConfig().setup(app)

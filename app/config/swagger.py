@@ -4,7 +4,11 @@ from fastapi.openapi.utils import get_openapi
 
 class SwaggerConfig:
     @staticmethod
-    def run(app: FastAPI):
+    def setup(app: FastAPI):
+        return lambda: SwaggerConfig._generate_schema(app)
+
+    @staticmethod
+    def _generate_schema(app: FastAPI):
         if app.openapi_schema:
             return app.openapi_schema
 
@@ -23,4 +27,4 @@ class SwaggerConfig:
                 method.setdefault("security", []).append({"BearerAuth": []})
 
         app.openapi_schema = openapi_schema
-        return app.openapi_schema
+        return openapi_schema
