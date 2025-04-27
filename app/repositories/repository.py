@@ -15,13 +15,13 @@ class Repository(ABC, Generic[T, C, U]):
     @abstractmethod
     def model(self) -> type[T]: pass
 
-    def get_by_id(self, id: int | UUID) -> T | None:
+    def get_by_id(self, id: int | UUID) -> T:
         return self.db.query(self.model).filter(self.model.id == id).first() # pyright: ignore
 
     def get_all(self,) -> List[T]:
         return self.db.query(self.model).all()
 
-    def create(self, data: C) -> T | None:
+    def create(self, data: C) -> T:
         data_dict = data.model_dump() # pyright: ignore
         obj = self.model(**data_dict)
 
@@ -31,20 +31,16 @@ class Repository(ABC, Generic[T, C, U]):
 
         return obj
 
-    def delete(self, id: int) -> T | None:
+    def delete(self, id: int | UUID) -> T:
         model = self.get_by_id(id)
-        if not model:
-            return None
 
         self.db.delete(model)
         self.db.commit()
+
         return model
 
-    def update(self, data: U, id: int) -> T | None:
+    def update(self, data: U, id: int | UUID) -> T:
         model = self.get_by_id(id)
-        if not model:
-            return None
-
         if data.name is not None: # pyright: ignore
             model.name = data.name # pyright: ignore
 
