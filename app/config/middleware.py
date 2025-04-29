@@ -3,7 +3,7 @@ from app.middlewares.exception_handler import ExceptionHandlerMiddleware
 
 
 class MiddlewareManager:
-    def __init__(self, app: FastAPI):
+    def __init__(self, app: FastAPI) -> None:
         self.app = app
 
     def setup(self):
