@@ -1,17 +1,18 @@
-from pydantic import BaseModel
+from uuid import UUID
+from pydantic import BaseModel, ConfigDict
 from datetime import datetime
 
 class AudioCreate(BaseModel):
-    user_id: int
+    user_id: UUID
     name: str
+    data_path: str
 
 class AudioUpdate(BaseModel):
     name: str | None = None
 
-class AudioOut(BaseModel):
+class AudioResponse(BaseModel):
     id: int
     date_in: datetime
     date_modfied: datetime
 
-    class Config:
-        orm_mode = True  # Important to allow SQLAlchemy model -> Pydantic conversion
+    model_config = ConfigDict(from_attributes=True)
