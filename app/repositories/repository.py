@@ -41,8 +41,10 @@ class Repository(ABC, Generic[T, C, U]):
 
     def update(self, data: U, id: int | UUID) -> T:
         model = self.get_by_id(id)
-        if data.name is not None: # pyright: ignore
-            model.name = data.name # pyright: ignore
+        updated_data = data.model_dump(exclude_unset=True) # pyright: ignore
+
+        for key, value in updated_data.items():
+            setattr(model, key, value)
 
         self.db.commit()
         self.db.refresh(model)

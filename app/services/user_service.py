@@ -1,8 +1,9 @@
 from uuid import UUID
+
 from app.infrastructure.database import DatabaseSessionManager
 from app.repositories import UserRepository
 from app.models import User
-from app.schemas.user_schema import UserCreate, UserUpdate
+from app.schemas.user_schema import UserCreate, UserPublicUpdate, UserUpdate
 from app.exceptions import NotFoundException, ConflictException
 
 class UserService:
@@ -36,3 +37,21 @@ class UserService:
         user_deleted = self.user_repository.delete(id)
 
         return user_deleted
+
+    def get_public_profile(self, user_id: UUID) -> User:
+        user = self.user_repository.get_by_id(user_id)
+        if not user:
+            raise NotFoundException("User not found.")
+        return user
+
+    def update_public_profile(self, id: UUID, data: UserPublicUpdate) -> User:
+        user = self.user_repository.get_by_id(id)
+        if not user:
+            raise NotFoundException("User not found")
+
+        if data.bio:
+            user.bio = data.bio
+        if data.profile_picture_url:
+            user.profire_picture_url = data.profile_picture_url
+
+        return user

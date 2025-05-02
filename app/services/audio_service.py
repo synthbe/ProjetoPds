@@ -2,6 +2,7 @@ import shutil
 from uuid import UUID
 from fastapi import UploadFile
 from pathlib import Path
+
 from app.infrastructure.database import DatabaseSessionManager
 from app.repositories import AudioRepository
 from app.models import Audio
@@ -38,7 +39,7 @@ class AudioService:
 
     def download(self, id: int, user_id: UUID):
         audio = self.get_by_id(id)
-        if not audio.user_id != user_id:
+        if not audio or audio.user_id != user_id:
             raise NotFoundException("Audio not found.")
 
         file_path = Path(audio.data_path)

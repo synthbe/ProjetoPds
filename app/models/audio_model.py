@@ -12,7 +12,7 @@ class Audio(BaseModel):
     date_in: Mapped[str] = mapped_column(TIMESTAMP, server_default=func.now())
     date_modified: Mapped[str] = mapped_column(TIMESTAMP, server_default=func.now())
     data_path: Mapped[str] = mapped_column(String, nullable=False)
-    pinned: Mapped[bool] = mapped_column(Boolean, nullable=False)
+    pinned: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
 
     user_id: Mapped[UUID] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
     owner: Mapped["User"] = relationship(back_populates="audios")

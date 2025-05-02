@@ -9,6 +9,7 @@ from app.exceptions import (
     NotFoundException,
 )
 from app.helpers import PasswordHash, AuthToken
+from app.schemas.user_schema import UserCreate
 
 
 class AuthService:
@@ -22,11 +23,12 @@ class AuthService:
         password_hasher = PasswordHash()
         hashed_password = password_hasher.hash(user_create.password)
 
-        User(
+        user = UserCreate(
             email=user_create.email,
             name=user_create.name,
             hashed_password=hashed_password,
         )
+        self.user_repository.create(user)
 
         return JSONResponse(content={"message": "User registered as successfully"})
 

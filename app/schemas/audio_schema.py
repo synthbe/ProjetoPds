@@ -13,6 +13,6 @@ class AudioUpdate(BaseModel):
 class AudioResponse(BaseModel):
     id: int
     date_in: datetime
-    date_modfied: datetime
+    date_modified: datetime
 
     model_config = ConfigDict(from_attributes=True)
