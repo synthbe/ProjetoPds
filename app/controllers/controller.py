@@ -4,7 +4,7 @@ from fastapi import APIRouter
 
 
 class BaseController(ABC):
-    def __init__(self, tags: list = [], prefix: str = None) -> None:
+    def __init__(self, tags: list = [], prefix: str = "") -> None:
         self._router = APIRouter(tags=tags, prefix=prefix)
         self.add_routes()
 
