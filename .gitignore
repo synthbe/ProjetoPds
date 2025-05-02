@@ -13,4 +13,4 @@ build/
 dist/
 
 # Ignorar arquivos da Music Source Separation Universal Training Code
-app/msst
+app/extractor_app

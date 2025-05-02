@@ -1,5 +1,7 @@
 import uuid
-from sqlalchemy.orm import Mapped, mapped_column
+from typing import List
+
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import String
 from sqlalchemy.dialects.postgresql import UUID as pgUUID
 
@@ -15,3 +17,19 @@ class User(BaseModel):
     name: Mapped[str] = mapped_column(String(50))
     email: Mapped[str] = mapped_column(String(50), unique=True, index=True)
     hashed_password: Mapped[str] = mapped_column(String(255))
+
+    following: Mapped[List["User"]] = relationship(
+        "User",
+        secondary="user_followers",
+        primaryjoin="User.id == UserFollower.follower_id",
+        secondaryjoin="User.id == UserFollower.following_id",
+        back_populates="followers",
+    )
+
+    followers: Mapped[List["User"]] = relationship(
+        "User",
+        secondary="user_followers",
+        primaryjoin="User.id == UserFollower.following_id",
+        secondaryjoin="User.id == UserFollower.follower_id",
+        back_populates="following",
+    )

@@ -22,11 +22,13 @@ class AuthService:
         password_hasher = PasswordHash()
         hashed_password = password_hasher.hash(user_create.password)
 
-        User(
+        user = User(
             email=user_create.email,
             name=user_create.name,
             hashed_password=hashed_password,
         )
+
+        self.user_repository.create(user)
 
         return JSONResponse(content={"message": "User registered as successfully"})
 
