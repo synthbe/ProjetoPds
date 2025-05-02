@@ -6,8 +6,8 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int
     SECRET_KEY: str
     ALGORITHM: str
-    REPO_URL: str
-    CLONE_DIR: str
+    AUDIO_EXTRACTOR_REPO_URL: str
+    AUDIO_EXTRACTOR_REPO_DIR: str
 
     class Config:
         env_file = ".env"
