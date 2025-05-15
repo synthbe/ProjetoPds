@@ -1,3 +1,15 @@
+Para subir o banco de dados, basta executar:
+
+```bash
+docker-compose up -d
+
+Para entrar no envirement execute:
+
+uv venv                     # Cria o ambiente
+source .venv/bin/activate   # Ativa o ambiente (Linux)
+uv sync                     # Instalar dependências
+
+
 ## ✅ Funcionalidades
 
 - _Upload e Manipulação de Áudio via IA_
