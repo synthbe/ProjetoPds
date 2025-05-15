@@ -1,6 +1,7 @@
 import shutil
 from uuid import UUID, uuid4
 from pathlib import Path
+from typing import Literal
 
 from fastapi import UploadFile
 from fastapi.responses import FileResponse
@@ -9,6 +10,7 @@ from app.repositories import AudioRepository
 from app.models import Audio
 from app.schemas.audio_schema import AudioCreate, AudioUpdate
 from app.exceptions import NotFoundException, AudioTypeNotSupportedException
+from app.facade import AudioInference
 
 
 class AudioService:
@@ -30,7 +32,7 @@ class AudioService:
 
         return audio
 
-    def upload(self, file: UploadFile, user_id: UUID) -> Audio:
+    def upload(self, file: UploadFile, user_id: UUID, extraction_type:Literal["vocal","4stems"]) -> Audio:
         if file.content_type not in self.__ALLOWED_CONTENT_TYPES:
             allowed_types_str = ", ".join(self.__ALLOWED_CONTENT_TYPES)
             raise AudioTypeNotSupportedException(
@@ -38,20 +40,23 @@ class AudioService:
             )
 
         audio_id = uuid4()
-        save_path = Path(f"uploads/{user_id}/{audio_id}/{file.filename}")
-        save_path.parent.mkdir(parents=True, exist_ok=True)
+        dir_path = Path(f"uploads/{user_id}/{audio_id}/")
+        dir_path.parent.mkdir(parents=True, exist_ok=True)
+        file_path = Path(f"uploads/{user_id}/{audio_id}/{file.filename}")
 
-        with save_path.open("wb") as buffer:
+        with dir_path.open("wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
 
         audio = self.audio_repository.create(
             AudioCreate(
                 id=audio_id,
                 name=file.filename,  # pyright: ignore
-                data_path=str(save_path),
+                data_path=str(file_path),
                 user_id=user_id,
             )
         )
+
+        AudioInference.vocal_inference(str(dir_path))
 
         return audio
 

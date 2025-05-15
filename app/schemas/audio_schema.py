@@ -1,6 +1,7 @@
 from uuid import UUID
 from pydantic import BaseModel, ConfigDict
 from datetime import datetime
+from typing import Literal
 
 
 class AudioCreate(BaseModel):
@@ -20,3 +21,4 @@ class AudioResponse(BaseModel):
     date_modified: datetime
 
     model_config = ConfigDict(from_attributes=True)
+    

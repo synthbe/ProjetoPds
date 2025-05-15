@@ -1,11 +1,12 @@
 from uuid import UUID
 
-from fastapi import Depends, File, UploadFile
+from fastapi import Depends, File, UploadFile, Form
 
 from app.dependencies import AuthGuard
 from app.services import AudioService
 from app.schemas.audio_schema import AudioUpdate, AudioResponse
 from app.models import User
+from typing import Literal
 
 from .controller import BaseController
 
@@ -20,8 +21,9 @@ class AudioController(BaseController):
         def upload(
             file: UploadFile = File(...),
             user: User = Depends(AuthGuard.get_authenticated_user),
+            extraction_type: Literal["vocal","4stems"] = Form(...)
         ):
-            audio = self.audio_service.upload(file, user.id)
+            audio = self.audio_service.upload(file, user.id, extraction_type)
             return AudioResponse.model_validate(audio)
 
         @self.router.get("/download/{id}")
