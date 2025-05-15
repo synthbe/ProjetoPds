@@ -2,6 +2,7 @@ import shutil
 from uuid import UUID, uuid4
 from pathlib import Path
 from typing import Literal
+from typing import List
 
 from fastapi import UploadFile
 from fastapi.responses import FileResponse
@@ -32,7 +33,7 @@ class AudioService:
 
         return audio
 
-    def upload(self, file: UploadFile, user_id: UUID, extraction_type:Literal["vocal","4stems"]) -> Audio:
+    def upload(self, file: UploadFile, user_id: UUID, extraction_type:Literal["vocal","4stems"]) -> List[Audio]:
         if file.content_type not in self.__ALLOWED_CONTENT_TYPES:
             allowed_types_str = ", ".join(self.__ALLOWED_CONTENT_TYPES)
             raise AudioTypeNotSupportedException(
@@ -56,9 +57,21 @@ class AudioService:
             )
         )
 
-        AudioInference.vocal_inference(str(dir_path))
+        created_audios = [audio]
 
-        return audio
+        output_files = AudioInference.vocal_inference(str(dir_path),extraction_type)
+        for file in output_files:
+            audio_file = AudioCreate(
+                id = uuid4(),
+                name=file["name"],
+                data_path=file["path"],
+                user_id=user_id,
+            )
+
+            created_audios.append(self.audio_repository.create(audio_file))
+        
+        return created_audios
+
 
     def download(self, id: UUID, user_id: UUID):
         audio = self.get_by_id(id)

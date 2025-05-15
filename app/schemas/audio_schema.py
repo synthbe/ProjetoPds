@@ -18,7 +18,8 @@ class AudioUpdate(BaseModel):
 class AudioResponse(BaseModel):
     id: UUID
     date_in: datetime
+    data_path: str
+    name: str
     date_modified: datetime
-
     model_config = ConfigDict(from_attributes=True)
     
