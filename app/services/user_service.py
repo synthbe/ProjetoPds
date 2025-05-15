@@ -2,23 +2,54 @@ from uuid import UUID
 
 from fastapi.responses import JSONResponse
 
-from app.repositories.user_repository import UserRepository
-from app.models.user_model import User
-from app.exceptions import (
-    ConflictException,
-    NotFoundException,
-)
+from app.repositories import UserRepository
+from app.models import User
+from app.schemas.user_schema import UserCreate, UserUpdate
+from app.exceptions import NotFoundException, ConflictException
 
 
 class UserService:
     def __init__(self):
         self.user_repository = UserRepository()
 
+    def get_user_by_id(self, id: UUID) -> User:
+        user = self.user_repository.get_by_id(id)
+
+        if not user:
+            raise NotFoundException(f"User not found")
+
+        return user
+
+    def create(self, data: UserCreate) -> User:
+        user_exists = self.user_repository.get_by_email(data.email)
+
+        if not user_exists:
+            raise ConflictException("Email already used")
+
+        user_created = self.user_repository.create(data)
+
+        return user_created
+
+    def update(self, data: UserUpdate, id: UUID) -> User:
+        self.get_user_by_id(id)
+
+        user_updated = self.user_repository.update(data, id)
+
+        return user_updated
+
+    def delete(self, id: UUID) -> User:
+        self.get_user_by_id(id)
+
+        user_deleted = self.user_repository.delete(id)
+
+        return user_deleted
+
     def follow_user(self, follower: User, following_id: UUID) -> None:
         if follower.id == following_id:
             raise ConflictException("You can't follow yourself")
 
         following_user = self.user_repository.get_by_id(following_id)
+
         if not following_user:
             raise NotFoundException("User not found")
 

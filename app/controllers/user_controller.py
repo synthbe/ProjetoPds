@@ -2,16 +2,17 @@ from fastapi import Depends
 
 from app.dependencies import AuthGuard
 from app.models import User
-from app.schemas import UserResponse, FollowUserRequest
-from app.services.user_service import UserService
+from app.schemas import UserResponse
+from app.schemas.user_schema import UserCreate, UserUpdate, FollowUserRequest
+from app.services import UserService
 
 from .controller import BaseController
 
 
 class UserController(BaseController):
     def __init__(self):
-        super().__init__(tags=["User"])
-        self.__user_service = UserService()
+        super().__init__(tags=["User"], prefix="user")
+        self.user_service = UserService()
 
     def add_routes(self) -> None:
         @self.router.get("/me", response_model=UserResponse)
@@ -23,4 +24,20 @@ class UserController(BaseController):
             body: FollowUserRequest,
             user: User = Depends(AuthGuard.get_authenticated_user),
         ):
-            return self.__user_service.follow_user(user, body.user_id)
+            return self.user_service.follow_user(user, body.user_id)
+
+        @self.router.post("/create")
+        def create(data: UserCreate):
+            self.user_service.create(data)
+
+        @self.router.put("/update")
+        def update(
+            data: UserUpdate, user: User = Depends(AuthGuard.get_authenticated_user)
+        ):
+            user_updated = self.user_service.update(data, user.id)
+            return UserResponse.model_validate(user_updated)
+
+        @self.router.delete("/delete")
+        def delete(user: User = Depends(AuthGuard.get_authenticated_user)):
+            user_deleted = self.user_service.delete(user.id)
+            return UserResponse.model_validate(user_deleted)

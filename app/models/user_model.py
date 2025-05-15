@@ -33,3 +33,7 @@ class User(BaseModel):
         secondaryjoin="User.id == UserFollower.follower_id",
         back_populates="following",
     )
+
+    audios: Mapped[List["Audio"]] = relationship(
+        back_populates="owner", cascade="all, delete"
+    )

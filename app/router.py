@@ -4,7 +4,7 @@ from app.controllers import AuthController, UserController
 
 
 class Router:
-    def __init__(self, app: FastAPI):
+    def __init__(self, app: FastAPI) -> None:
         self.app = app
 
     def register(self):

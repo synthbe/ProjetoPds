@@ -4,6 +4,16 @@ from typing import List
 from pydantic import BaseModel, EmailStr, ConfigDict
 
 
+class UserCreate(BaseModel):
+    id: int
+    name: str
+    email: EmailStr
+
+
+class UserUpdate(BaseModel):
+    name: str | None = None
+
+
 class UserBase(BaseModel):
     id: UUID
     name: str
