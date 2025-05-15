@@ -1,6 +1,7 @@
 import os
 import subprocess
 import git
+
 from git.exc import GitCommandError
 
 
@@ -18,27 +19,27 @@ class MusicModelRepoManager:
         self._install_requirements()
 
     def _clone_repo(self):
-        print(f"⏬ Clonando repo de {self.repo_url} pra pasta '{self.clone_dir}'...")
+        print(f"⏬ Cloning repo from {self.repo_url} into folder '{self.clone_dir}'...")
         git.Repo.clone_from(self.repo_url, self.clone_dir)
-        print("✅ Clonagem feita")
+        print("✅ Clone completed")
 
     def _update_repo(self):
-        print("🔄 Repo já existe, tentando puxar atualizações...")
+        print("🔄 Repo already exists, trying to pull updates...")
         try:
             repo = git.Repo(self.clone_dir)
             origin = repo.remotes.origin
             origin.fetch()
             origin.pull()
-            print("✅ Repo atualizado")
+            print("✅ Repo updated")
         except GitCommandError as e:
-            print(f"⚠️ Erro ao atualizar o repo: {e}")
-            print("🔁 Fazendo reset total pro que tá no remoto...")
-            repo.git.reset('--hard')
+            print(f"⚠️ Error while updating repo: {e}")
+            print("🔁 Performing hard reset to match remote...")
+            repo.git.reset("--hard")
             origin.pull()
-            print("✅ Reset feito e repo atualizado")
+            print("✅ Reset completed and repo updated")
 
     def _install_requirements(self):
-        print("🔧 Instalando dependências do requirements.txt do repo...")
+        print("🔧 Installing dependencies from repo's requirements.txt...")
         requirements_path = os.path.join(self.clone_dir, "requirements.txt")
         subprocess.run(["uv", "pip", "install", "-r", requirements_path], check=True)
-        print("✅ Dependências instaladas")
+        print("✅ Dependencies installed")
