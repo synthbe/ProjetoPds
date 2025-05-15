@@ -1,6 +1,8 @@
 import shutil
 from uuid import UUID, uuid4
 from pathlib import Path
+from typing import Literal
+from typing import List
 
 from fastapi import UploadFile
 from fastapi.responses import FileResponse
@@ -9,6 +11,7 @@ from app.repositories import AudioRepository
 from app.models import Audio
 from app.schemas.audio_schema import AudioCreate, AudioUpdate
 from app.exceptions import NotFoundException, AudioTypeNotSupportedException
+from app.facade import AudioInference
 
 
 class AudioService:
@@ -30,7 +33,7 @@ class AudioService:
 
         return audio
 
-    def upload(self, file: UploadFile, user_id: UUID) -> Audio:
+    def upload(self, file: UploadFile, user_id: UUID, extraction_type:Literal["vocal","4stems"]) -> List[Audio]:
         if file.content_type not in self.__ALLOWED_CONTENT_TYPES:
             allowed_types_str = ", ".join(self.__ALLOWED_CONTENT_TYPES)
             raise AudioTypeNotSupportedException(
@@ -38,22 +41,37 @@ class AudioService:
             )
 
         audio_id = uuid4()
-        save_path = Path(f"uploads/{user_id}/{audio_id}/{file.filename}")
-        save_path.parent.mkdir(parents=True, exist_ok=True)
+        dir_path = Path(f"uploads/{user_id}/{audio_id}/")
+        dir_path.mkdir(parents=True, exist_ok=True)  # cria toda a estrutura necessária
+        file_path = dir_path / file.filename         # melhor usar operador / para juntar paths
 
-        with save_path.open("wb") as buffer:
+        with file_path.open("wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
 
         audio = self.audio_repository.create(
             AudioCreate(
                 id=audio_id,
                 name=file.filename,  # pyright: ignore
-                data_path=str(save_path),
+                data_path=str(file_path),
                 user_id=user_id,
             )
         )
 
-        return audio
+        created_audios = [audio]
+
+        output_files = AudioInference.vocal_inference(str(dir_path),extraction_type)
+        for file in output_files:
+            audio_file = AudioCreate(
+                id = uuid4(),
+                name=file["name"],
+                data_path=file["path"],
+                user_id=user_id,
+            )
+
+            created_audios.append(self.audio_repository.create(audio_file))
+        
+        return created_audios
+
 
     def download(self, id: UUID, user_id: UUID):
         audio = self.get_by_id(id)
