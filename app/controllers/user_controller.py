@@ -11,7 +11,7 @@ from .controller import BaseController
 
 class UserController(BaseController):
     def __init__(self):
-        super().__init__(tags=["User"], prefix="user")
+        super().__init__(tags=["User"], prefix="/user")
         self.user_service = UserService()
 
     def add_routes(self) -> None:

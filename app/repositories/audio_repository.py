@@ -1,6 +1,8 @@
-from models.audio_model import Audio
-from schemas.audio_schema import AudioCreate, AudioUpdate
-from repository import Repository
+from app.models.audio_model import Audio
+from app.schemas.audio_schema import AudioCreate, AudioUpdate
+
+from .repository import Repository
+
 
 class AudioRepository(Repository[Audio, AudioCreate, AudioUpdate]):
     @property

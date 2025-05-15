@@ -14,3 +14,5 @@ dist/
 
 # Ignorar arquivos da Music Source Separation Universal Training Code
 app/msst
+
+uploads/
