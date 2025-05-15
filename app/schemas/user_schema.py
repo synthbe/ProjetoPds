@@ -5,9 +5,9 @@ from pydantic import BaseModel, EmailStr, ConfigDict
 
 
 class UserCreate(BaseModel):
-    id: int
     name: str
     email: EmailStr
+    hashed_password: str
 
 
 class UserUpdate(BaseModel):

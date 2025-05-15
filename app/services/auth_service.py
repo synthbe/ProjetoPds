@@ -1,8 +1,7 @@
 from fastapi.responses import JSONResponse
 
 from app.repositories.user_repository import UserRepository
-from app.schemas.auth_schema import AuthCreate, AuthLogin, AuthLoginResponse
-from app.models.user_model import User
+from app.schemas import AuthCreate, AuthLogin, AuthLoginResponse, UserCreate
 from app.exceptions import (
     ConflictException,
     InvalidCredentialsException,
@@ -22,7 +21,7 @@ class AuthService:
         password_hasher = PasswordHash()
         hashed_password = password_hasher.hash(user_create.password)
 
-        user = User(
+        user = UserCreate(
             email=user_create.email,
             name=user_create.name,
             hashed_password=hashed_password,

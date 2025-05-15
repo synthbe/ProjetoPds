@@ -1,10 +1,14 @@
 from abc import ABC, abstractmethod
 from typing import List, TypeVar, Generic
-from app.infrastructure.database import DatabaseSessionManager
 from uuid import UUID
 
+from pydantic import BaseModel
+
+from app.infrastructure.database import DatabaseSessionManager
+
+
 T = TypeVar("T")
-C = TypeVar("C")
+C = TypeVar("C", bound=BaseModel)
 U = TypeVar("U")
 
 

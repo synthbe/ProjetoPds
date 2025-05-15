@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from app.models.audio_model import Audio
 from app.schemas.audio_schema import AudioCreate, AudioUpdate
 
@@ -9,7 +11,7 @@ class AudioRepository(Repository[Audio, AudioCreate, AudioUpdate]):
     def model(self) -> type[Audio]:
         return Audio
 
-    def toggle_audio_pin(self, id: int) -> Audio | None:
+    def toggle_audio_pin(self, id: UUID) -> Audio | None:
         audio = self.get_by_id(id)
         if not audio:
             return None

@@ -1,5 +1,5 @@
 import shutil
-from uuid import UUID
+from uuid import UUID, uuid4
 from pathlib import Path
 
 from fastapi import UploadFile
@@ -8,10 +8,18 @@ from fastapi.responses import FileResponse
 from app.repositories import AudioRepository
 from app.models import Audio
 from app.schemas.audio_schema import AudioCreate, AudioUpdate
-from app.exceptions import NotFoundException
+from app.exceptions import NotFoundException, AudioTypeNotSupportedException
 
 
 class AudioService:
+    __ALLOWED_CONTENT_TYPES = [
+        "audio/mpeg",
+        "audio/wav",
+        "audio/ogg",
+        "audio/flac",
+        "audio/aac",
+    ]
+
     def __init__(self) -> None:
         self.audio_repository = AudioRepository()
 
@@ -23,7 +31,14 @@ class AudioService:
         return audio
 
     def upload(self, file: UploadFile, user_id: UUID) -> Audio:
-        save_path = Path(f"uploads/{file.filename}")
+        if file.content_type not in self.__ALLOWED_CONTENT_TYPES:
+            allowed_types_str = ", ".join(self.__ALLOWED_CONTENT_TYPES)
+            raise AudioTypeNotSupportedException(
+                f"Audio type not supported. Allowed types: {allowed_types_str}"
+            )
+
+        audio_id = uuid4()
+        save_path = Path(f"uploads/{user_id}/{audio_id}/{file.filename}")
         save_path.parent.mkdir(parents=True, exist_ok=True)
 
         with save_path.open("wb") as buffer:
@@ -31,6 +46,7 @@ class AudioService:
 
         audio = self.audio_repository.create(
             AudioCreate(
+                id=audio_id,
                 name=file.filename,  # pyright: ignore
                 data_path=str(save_path),
                 user_id=user_id,
@@ -39,7 +55,7 @@ class AudioService:
 
         return audio
 
-    def download(self, id: int, user_id: UUID):
+    def download(self, id: UUID, user_id: UUID):
         audio = self.get_by_id(id)
 
         if not audio or audio.user_id != user_id:
@@ -56,14 +72,14 @@ class AudioService:
             media_type="audio/mpeg",
         )
 
-    def update(self, data: AudioUpdate, id: int) -> Audio:
+    def update(self, data: AudioUpdate, id: UUID) -> Audio:
         self.get_by_id(id)
 
         audio_updated = self.audio_repository.update(data, id)
 
         return audio_updated
 
-    def delete(self, id: int) -> Audio:
+    def delete(self, id: UUID) -> Audio:
         self.get_by_id(id)
 
         audio_deleted = self.audio_repository.delete(id)

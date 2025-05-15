@@ -3,7 +3,7 @@ from fastapi import Depends
 from app.dependencies import AuthGuard
 from app.models import User
 from app.schemas import UserResponse
-from app.schemas.user_schema import UserCreate, UserUpdate, FollowUserRequest
+from app.schemas.user_schema import UserUpdate, FollowUserRequest
 from app.services import UserService
 
 from .controller import BaseController
@@ -25,10 +25,6 @@ class UserController(BaseController):
             user: User = Depends(AuthGuard.get_authenticated_user),
         ):
             return self.user_service.follow_user(user, body.user_id)
-
-        @self.router.post("/create")
-        def create(data: UserCreate):
-            self.user_service.create(data)
 
         @self.router.put("/update")
         def update(

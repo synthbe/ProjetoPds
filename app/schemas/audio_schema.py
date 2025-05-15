@@ -4,6 +4,7 @@ from datetime import datetime
 
 
 class AudioCreate(BaseModel):
+    id: UUID
     user_id: UUID
     name: str
     data_path: str
@@ -14,7 +15,7 @@ class AudioUpdate(BaseModel):
 
 
 class AudioResponse(BaseModel):
-    id: int
+    id: UUID
     date_in: datetime
     date_modified: datetime
 

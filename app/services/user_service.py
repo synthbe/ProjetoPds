@@ -4,7 +4,7 @@ from fastapi.responses import JSONResponse
 
 from app.repositories import UserRepository
 from app.models import User
-from app.schemas.user_schema import UserCreate, UserUpdate
+from app.schemas.user_schema import UserUpdate
 from app.exceptions import NotFoundException, ConflictException
 
 
@@ -19,16 +19,6 @@ class UserService:
             raise NotFoundException(f"User not found")
 
         return user
-
-    def create(self, data: UserCreate) -> User:
-        user_exists = self.user_repository.get_by_email(data.email)
-
-        if not user_exists:
-            raise ConflictException("Email already used")
-
-        user_created = self.user_repository.create(data)
-
-        return user_created
 
     def update(self, data: UserUpdate, id: UUID) -> User:
         self.get_user_by_id(id)
