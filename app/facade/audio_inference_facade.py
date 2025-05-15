@@ -7,7 +7,11 @@ from app.config.settings import settings
 class AudioInference:
     @staticmethod
     def vocal_inference(audio_path: str):
-        print(audio_path)
+        audio_path = audio_path
+        print(f"[DEBUG] audio_path = {audio_path}")
+        output_path = os.path.join(audio_path, "separated")
+
+
         args = [
             "python3", f"{settings.AUDIO_EXTRACTOR_REPO_DIR}/inference.py",
             "--config_path", f"{settings.AUDIO_EXTRACTOR_REPO_DIR}/configs/config_vocals_mdx23c.yaml",

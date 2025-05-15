@@ -41,10 +41,10 @@ class AudioService:
 
         audio_id = uuid4()
         dir_path = Path(f"uploads/{user_id}/{audio_id}/")
-        dir_path.parent.mkdir(parents=True, exist_ok=True)
-        file_path = Path(f"uploads/{user_id}/{audio_id}/{file.filename}")
+        dir_path.mkdir(parents=True, exist_ok=True)  # cria toda a estrutura necessária
+        file_path = dir_path / file.filename         # melhor usar operador / para juntar paths
 
-        with dir_path.open("wb") as buffer:
+        with file_path.open("wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
 
         audio = self.audio_repository.create(
