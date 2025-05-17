@@ -35,6 +35,19 @@ class PostRepository(Repository[Post, PostCreate, PostUpdate]):
         self.db.refresh(post)
         return post
 
+    def get_all(
+        self, author_ids: list[UUID] | None = None, theme: str | None = None
+    ) -> list[Post]:
+        query = self.db.query(Post)
+
+        if author_ids:
+            query = query.filter(Post.author_id.in_(author_ids))
+
+        if theme:
+            query = query.filter(Post.theme == theme)
+
+        return query.all()
+
     def update(self, data: PostUpdate, model: Post) -> Post:
         data_dict = data.model_dump(exclude_unset=True)
 

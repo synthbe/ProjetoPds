@@ -22,14 +22,19 @@ class PostController(BaseController):
         ):
             return self.post_service.create_post(data, user)
 
+        @self.router.get("/my-posts", response_model=list[PostResponse])
+        def list_my_posts(
+            theme: str | None = Query(default=None),
+            user: User = Depends(AuthGuard.get_authenticated_user),
+        ):
+            return self.post_service.get_my_posts(user, theme)
+
         @self.router.get("/", response_model=list[PostResponse])
-        def list_posts(theme: str | None = Query(default=None)):
-            posts = self.post_service.get_all_posts()
-
-            if theme:
-                posts = [p for p in posts if p.theme == theme]
-
-            return posts
+        def list_feed_posts(
+            theme: str | None = Query(default=None),
+            user: User = Depends(AuthGuard.get_authenticated_user),
+        ):
+            return self.post_service.get_feed_posts(user, theme)
 
         @self.router.get("/{post_id}", response_model=PostResponse)
         def get_post(post_id: UUID = Path(...)):
@@ -39,7 +44,6 @@ class PostController(BaseController):
         @self.router.put("/{post_id}", response_model=PostResponse)
         def update_post(post_id: UUID, data: PostUpdate):
             updated_post = self.post_service.update_post(post_id, data)
-
             return PostResponse.model_validate(updated_post)
 
         @self.router.delete("/{post_id}", response_model=dict)

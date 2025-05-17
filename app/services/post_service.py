@@ -51,8 +51,13 @@ class PostService:
 
         return post
 
-    def get_all_posts(self):
-        return self.post_repository.get_all()
+    def get_my_posts(self, user: User, theme: str | None = None):
+        return self.post_repository.get_all(author_ids=[user.id], theme=theme)
+
+    def get_feed_posts(self, user: User, theme: str | None = None):
+        following_ids = [u.id for u in user.following]
+        author_ids = [user.id] + following_ids
+        return self.post_repository.get_all(theme=theme, author_ids=author_ids)
 
     def delete_post(self, post_id: UUID) -> JSONResponse:
         post = self.post_repository.get_by_id(post_id)
