@@ -12,8 +12,16 @@ class ExceptionHandlerMiddleware(BaseHTTPMiddleware):
             response = await call_next(request)
             return response
         except AppBaseException as e:
+            error_response = {
+                "message": e.message,
+            }
+
+            if e.errors:
+                error_response["errors"] = e.errors
+
             return JSONResponse(
-                status_code=e.status_code, content={"message": e.message}
+                status_code=e.status_code,
+                content=error_response,
             )
         except Exception as e:  # pylint: disable=broad-exception-caught
             Logger.error(f"{request.method} {request.url.path}", str(e))

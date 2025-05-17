@@ -26,6 +26,9 @@ class Repository(ABC, Generic[T, C, U]):
             self.db.query(self.model).filter(self.model.id == id).first()
         )  # pyright: ignore
 
+    def get_by_ids(self, ids: List[UUID] | List[int]) -> List[T]:
+        return self.db.query(self.model).filter(self.model.id.in_(ids)).all()
+
     def get_all(
         self,
     ) -> List[T]:
