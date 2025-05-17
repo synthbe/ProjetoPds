@@ -21,7 +21,7 @@ class PostUpdate(PostBase):
     pass
 
 
-class PostOut(PostBase):
+class PostResponse(PostBase):
     id: UUID
     audios: List[AudioPost] = []
 
