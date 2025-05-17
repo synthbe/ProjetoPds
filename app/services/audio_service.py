@@ -23,7 +23,7 @@ class AudioService:
     def __init__(self) -> None:
         self.audio_repository = AudioRepository()
 
-    def get_by_id(self, id: int) -> Audio:
+    def find_audio_by_id(self, id: int) -> Audio:
         audio = self.audio_repository.get_by_id(id)
         if not audio:
             raise NotFoundException("Audio not found")
@@ -56,7 +56,7 @@ class AudioService:
         return audio
 
     def download(self, id: UUID, user_id: UUID):
-        audio = self.get_by_id(id)
+        audio = self.find_audio_by_id(id)
 
         if not audio or audio.user_id != user_id:
             raise NotFoundException("Audio not found.")
@@ -73,15 +73,15 @@ class AudioService:
         )
 
     def update(self, data: AudioUpdate, id: UUID) -> Audio:
-        self.get_by_id(id)
+        audio = self.find_audio_by_id(id)
 
-        audio_updated = self.audio_repository.update(data, id)
+        audio_updated = self.audio_repository.update(data, audio)
 
         return audio_updated
 
     def delete(self, id: UUID) -> Audio:
-        self.get_by_id(id)
+        audio = self.find_audio_by_id(id)
 
-        audio_deleted = self.audio_repository.delete(id)
+        audio_deleted = self.audio_repository.delete(audio)
 
         return audio_deleted

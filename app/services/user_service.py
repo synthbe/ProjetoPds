@@ -21,16 +21,16 @@ class UserService:
         return user
 
     def update(self, data: UserUpdate, id: UUID) -> User:
-        self.get_user_by_id(id)
+        user = self.get_user_by_id(id)
 
-        user_updated = self.user_repository.update(data, id)
+        user_updated = self.user_repository.update(data, user)
 
         return user_updated
 
     def delete(self, id: UUID) -> User:
-        self.get_user_by_id(id)
+        user = self.get_user_by_id(id)
 
-        user_deleted = self.user_repository.delete(id)
+        user_deleted = self.user_repository.delete(user)
 
         return user_deleted
 

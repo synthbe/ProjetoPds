@@ -41,20 +41,18 @@ class Repository(ABC, Generic[T, C, U]):
 
         return obj
 
-    def delete(self, id: int | UUID) -> T:
-        model = self.get_by_id(id)
-
+    def delete(self, model: T) -> T:
         self.db.delete(model)
         self.db.commit()
 
         return model
 
-    def update(self, data: U, id: int | UUID) -> T:
-        model = self.get_by_id(id)
-        if data.name is not None:  # pyright: ignore
-            model.name = data.name  # pyright: ignore
+    def update(self, data: U, model: T) -> T:
+        data_dict = data.model_dump(exclude_unset=True)
+
+        for key, value in data_dict.items():
+            setattr(model, key, value)
 
         self.db.commit()
         self.db.refresh(model)
-
         return model
