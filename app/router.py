@@ -1,6 +1,11 @@
 from fastapi import FastAPI
 
-from app.controllers import AuthController, UserController, AudioController
+from app.controllers import (
+    AuthController,
+    UserController,
+    AudioController,
+    PostController,
+)
 
 
 class Router:
@@ -8,7 +13,12 @@ class Router:
         self.app = app
 
     def register(self):
-        controller_classes = [AuthController, UserController, AudioController]
+        controller_classes = [
+            AuthController,
+            UserController,
+            AudioController,
+            PostController,
+        ]
 
         for controller_class in controller_classes:
             controller = controller_class()

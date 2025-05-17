@@ -17,12 +17,18 @@ class PostCreate(PostBase):
     pass
 
 
-class PostUpdate(PostBase):
-    pass
+class PostUpdate(BaseModel):
+    theme: Optional[str] = None
+    description: Optional[str] = None
+    pipeline_template: Optional[List[str]] = None
+    audio_ids: Optional[List[UUID]] = None
 
 
-class PostResponse(PostBase):
+class PostResponse(BaseModel):
     id: UUID
+    theme: str
+    description: Optional[str]
+    pipeline_template: Optional[List[str]]
     audios: List[AudioPost] = []
 
     model_config = ConfigDict(from_attributes=True)
