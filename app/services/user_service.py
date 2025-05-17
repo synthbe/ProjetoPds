@@ -44,7 +44,9 @@ class UserService:
         if not following_user:
             raise NotFoundException("User not found")
 
-        if any(following.id == following_id for following in follower.following):
+        follower = self.user_repository.get_by_id(follower.id)
+
+        if following_user in follower.following:
             raise ConflictException("You are already following this user")
 
         self.user_repository.add_follower(follower.id, following_id)
