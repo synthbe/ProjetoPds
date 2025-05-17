@@ -12,4 +12,4 @@ from .audio_schema import (
     AudioPost,
     AudioResponse,
 )
-from .post_schema import PostBase, PostCreate, PostUpdate, PostResponse
+from .post_schema import PostCreateRequest, PostCreate, PostUpdate, PostResponse

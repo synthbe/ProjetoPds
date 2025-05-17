@@ -3,18 +3,18 @@ from pydantic import BaseModel, Field, ConfigDict
 from typing import List, Optional
 from uuid import UUID
 
-from app.schemas import AudioPost
+from app.schemas import AudioPost, UserBase
 
 
-class PostBase(BaseModel):
+class PostCreateRequest(BaseModel):
     theme: str
     description: Optional[str] = None
     audio_ids: List[UUID] = Field(default_factory=list)
     pipeline_template: Optional[List[str]] = None
 
 
-class PostCreate(PostBase):
-    pass
+class PostCreate(PostCreateRequest):
+    author_id: UUID
 
 
 class PostUpdate(BaseModel):
@@ -30,5 +30,6 @@ class PostResponse(BaseModel):
     description: Optional[str]
     pipeline_template: Optional[List[str]]
     audios: List[AudioPost] = []
+    author: UserBase
 
     model_config = ConfigDict(from_attributes=True)

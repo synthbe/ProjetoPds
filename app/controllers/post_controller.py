@@ -3,7 +3,7 @@ from fastapi import Depends, Path, Query
 
 from app.dependencies import AuthGuard
 from app.models import User
-from app.schemas.post_schema import PostCreate, PostUpdate, PostResponse
+from app.schemas.post_schema import PostCreateRequest, PostUpdate, PostResponse
 from app.services.post_service import PostService
 
 from .controller import BaseController
@@ -17,7 +17,8 @@ class PostController(BaseController):
     def add_routes(self) -> None:
         @self.router.post("/", response_model=dict)
         def create_post(
-            data: PostCreate, user: User = Depends(AuthGuard.get_authenticated_user)
+            data: PostCreateRequest,
+            user: User = Depends(AuthGuard.get_authenticated_user),
         ):
             return self.post_service.create_post(data, user)
 

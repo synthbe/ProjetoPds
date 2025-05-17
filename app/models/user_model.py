@@ -37,3 +37,7 @@ class User(BaseModel):
     audios: Mapped[List["Audio"]] = relationship(
         back_populates="owner", cascade="all, delete"
     )
+
+    posts: Mapped[List["Post"]] = relationship(
+        back_populates="author", cascade="all, delete"
+    )

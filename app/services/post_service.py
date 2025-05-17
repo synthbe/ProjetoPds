@@ -4,7 +4,7 @@ from fastapi.responses import JSONResponse
 from fastapi import status
 
 from app.repositories import PostRepository, AudioRepository
-from app.schemas.post_schema import PostCreate, PostUpdate
+from app.schemas.post_schema import PostCreateRequest, PostCreate, PostUpdate
 from app.exceptions import NotFoundException
 from app.models import User
 
@@ -14,14 +14,15 @@ class PostService:
         self.post_repository = PostRepository()
         self.audio_repository = AudioRepository()
 
-    def create_post(self, data: PostCreate, user: User) -> JSONResponse:
+    def create_post(self, data: PostCreateRequest, user: User) -> JSONResponse:
         audio_ids = data.audio_ids
         audios = self.audio_repository.get_by_ids(audio_ids)
+        audios_dict = {audio.id: audio for audio in audios}
 
         missing_audio_ids = []
 
         for audio_id in audio_ids:
-            audio = audios.get(audio_id)
+            audio = audios_dict.get(audio_id)
 
             if not audio or audio.user_id != user.id:
                 missing_audio_ids.append(audio_id)
@@ -33,7 +34,9 @@ class PostService:
                 errors=[f"Audio files with IDs: {missing_audio_id_str} not found"],
             )
 
-        post = self.post_repository.create(data)
+        post = self.post_repository.create(
+            PostCreate(**data.model_dump(), author_id=user.id)
+        )
 
         return JSONResponse(
             status_code=status.HTTP_201_CREATED,
