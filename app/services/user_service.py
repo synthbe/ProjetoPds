@@ -1,5 +1,6 @@
 from uuid import UUID
 
+from fastapi import status
 from fastapi.responses import JSONResponse
 
 from app.repositories import UserRepository
@@ -49,5 +50,6 @@ class UserService:
         self.user_repository.add_follower(follower.id, following_id)
 
         return JSONResponse(
-            content={"message": f"You are following {following_user.name}"}
+            status_code=status.HTTP_200_OK,
+            content={"message": f"You are following {following_user.name}"},
         )
