@@ -14,6 +14,14 @@ class AudioUpdate(BaseModel):
     name: str | None = None
 
 
+class AudioPost(BaseModel):
+    id: UUID
+    name: str
+    data_path: str
+
+    model_config = ConfigDict(from_attributes=True)
+
+
 class AudioResponse(BaseModel):
     id: UUID
     date_in: datetime
