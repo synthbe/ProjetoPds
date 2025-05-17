@@ -19,7 +19,7 @@ class PostController(BaseController):
         def create_post(
             data: PostCreate, user: User = Depends(AuthGuard.get_authenticated_user)
         ):
-            return self.post_service.create_post(data)
+            return self.post_service.create_post(data, user)
 
         @self.router.get("/", response_model=list[PostResponse])
         def list_posts(theme: str | None = Query(default=None)):
