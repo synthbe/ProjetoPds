@@ -2,9 +2,10 @@ from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 from typing import Optional
 
-from jwt import encode, decode, DecodeError
+from jwt import encode, decode, DecodeError, ExpiredSignatureError, InvalidTokenError
 
 from app.config import settings
+from app.exceptions import UnauthorizedException
 
 
 class AuthToken:
@@ -29,5 +30,9 @@ class AuthToken:
         try:
             payload = decode(token, self.secret_key, algorithms=self.algorithm)
             return payload.get("sub")
+        except ExpiredSignatureError as exc:
+            raise UnauthorizedException("Token has expired") from exc
+        except InvalidTokenError as exc:
+            raise UnauthorizedException("Invalid token") from exc
         except DecodeError:
             return None
