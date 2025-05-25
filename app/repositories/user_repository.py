@@ -12,7 +12,7 @@ class UserRepository(Repository[User, UserCreate, UserUpdate]):
     def model(self) -> type[User]:
         return User
 
-    def get_by_email(self, email: str) -> User | None:
+    def find_by_email(self, email: str) -> User | None:
         return self.db.query(User).filter(User.email == email).first()
 
     def add_follower(self, follower_id: UUID, following_id: UUID) -> UserFollower:
@@ -22,7 +22,7 @@ class UserRepository(Repository[User, UserCreate, UserUpdate]):
 
         return follow
 
-    def get_by_id(self, id: UUID) -> User | None:
+    def find_by_id(self, id: UUID) -> User | None:
         return (
             self.db.query(User)
             .options(joinedload(User.followers), joinedload(User.following))

@@ -21,7 +21,7 @@ class Repository(ABC, Generic[T, C, U]):
     def model(self) -> type[T]:
         pass
 
-    def get_by_id(self, id: int | UUID) -> T:
+    def find_by_id(self, id: int | UUID) -> T:
         return (
             self.db.query(self.model).filter(self.model.id == id).first()
         )  # pyright: ignore
@@ -42,7 +42,7 @@ class Repository(ABC, Generic[T, C, U]):
         return obj
 
     def delete(self, id: int | UUID) -> T:
-        model = self.get_by_id(id)
+        model = self.find_by_id(id)
 
         self.db.delete(model)
         self.db.commit()
@@ -50,7 +50,7 @@ class Repository(ABC, Generic[T, C, U]):
         return model
 
     def update(self, data: U, id: int | UUID) -> T:
-        model = self.get_by_id(id)
+        model = self.find_by_id(id)
         if data.name is not None:  # pyright: ignore
             model.name = data.name  # pyright: ignore
 
