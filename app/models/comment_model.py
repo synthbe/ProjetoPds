@@ -1,6 +1,7 @@
 import uuid
+from datetime import datetime
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy import Text, ForeignKey
+from sqlalchemy import Text, ForeignKey, DateTime, func
 from sqlalchemy.dialects.postgresql import UUID as pgUUID
 
 from app.config import BaseModel
@@ -18,6 +19,16 @@ class Comment(BaseModel):
     )
     post_id: Mapped[uuid.UUID] = mapped_column(
         ForeignKey("posts.id", ondelete="CASCADE"), nullable=False
+    )
+
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        onupdate=func.now(),
+        nullable=False,
     )
 
     post: Mapped["Post"] = relationship(back_populates="comments")

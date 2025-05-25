@@ -50,11 +50,20 @@ class PostRepository(Repository[Post, PostCreate, PostUpdate]):
         if theme:
             query = query.filter(Post.theme == theme)
 
-        return query.options(
-            joinedload(Post.audios),
-            joinedload(Post.author),
-            joinedload(Post.comments).joinedload(Comment.author),
-        ).all()
+        posts = (
+            query.order_by(Post.created_at.desc())
+            .options(
+                joinedload(Post.audios),
+                joinedload(Post.author),
+                joinedload(Post.comments).joinedload(Comment.author),
+            )
+            .all()
+        )
+
+        for post in posts:
+            post.comments.sort(key=lambda c: c.created_at)
+
+        return posts
 
     def update(self, data: PostUpdate, model: Post) -> Post:
         data_dict = data.model_dump(exclude_unset=True)

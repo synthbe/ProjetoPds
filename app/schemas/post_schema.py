@@ -1,3 +1,4 @@
+from datetime import datetime
 from pydantic import BaseModel, Field, ConfigDict
 
 from typing import List, Optional
@@ -37,5 +38,8 @@ class PostResponse(BaseModel):
     audios: List[AudioPost] = []
     author: UserBase
     comments: List[CommentResponse] = []
+
+    created_at: datetime
+    updated_at: datetime
 
     model_config = ConfigDict(from_attributes=True)

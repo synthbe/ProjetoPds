@@ -1,8 +1,9 @@
 import uuid
+from datetime import datetime
 from typing import List
 
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy import String, Text, ForeignKey
+from sqlalchemy import String, Text, ForeignKey, DateTime, func
 from sqlalchemy.dialects.postgresql import UUID as pgUUID, ARRAY
 
 from app.config import BaseModel
@@ -20,6 +21,16 @@ class Post(BaseModel):
     pipeline_template: Mapped[List[str]] = mapped_column(ARRAY(String), nullable=True)
     author_id: Mapped[uuid.UUID] = mapped_column(
         ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+    )
+
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        onupdate=func.now(),
+        nullable=False,
     )
 
     author: Mapped["User"] = relationship(back_populates="posts")

@@ -14,4 +14,9 @@ from .audio_schema import (
     AudioResponse,
 )
 from .post_schema import PostCreateRequest, PostCreate, PostUpdate, PostResponse
-from .comment_schema import CommentResponse, CommentCreate, CommentCreateRequest
+from .comment_schema import (
+    CommentResponse,
+    CommentCreate,
+    CommentCreateRequest,
+    CommentUpdate,
+)

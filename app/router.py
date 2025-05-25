@@ -5,6 +5,7 @@ from app.controllers import (
     UserController,
     AudioController,
     PostController,
+    CommentController,
 )
 
 
@@ -18,6 +19,7 @@ class Router:
             UserController,
             AudioController,
             PostController,
+            CommentController,
         ]
 
         for controller_class in controller_classes:
