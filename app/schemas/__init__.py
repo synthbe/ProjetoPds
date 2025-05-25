@@ -4,6 +4,7 @@ from .user_schema import (
     UserCreate,
     UserUpdate,
     FollowUserRequest,
+    UserResponseWithAudios,
 )
 from .auth_schema import AuthCreate, AuthLogin, AuthLoginResponse
 from .audio_schema import (

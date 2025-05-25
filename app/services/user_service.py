@@ -3,7 +3,7 @@ from uuid import UUID
 from fastapi import status
 from fastapi.responses import JSONResponse
 
-from app.repositories import UserRepository
+from app.repositories import UserRepository, AudioRepository
 from app.models import User
 from app.schemas.user_schema import UserUpdate
 from app.exceptions import NotFoundException, ConflictException
@@ -12,6 +12,20 @@ from app.exceptions import NotFoundException, ConflictException
 class UserService:
     def __init__(self):
         self.user_repository = UserRepository()
+        self.audio_repository = AudioRepository()
+
+    def user_profile(self, user: User) -> User:
+        user = self.user_repository.get_by_id(user.id)
+
+        if not user:
+            raise NotFoundException("User not found")
+
+        audios = self.audio_repository.get_audios_by_user_id(user.id, 3)
+
+        if audios:
+            user.audios = audios
+
+        return user
 
     def get_user_by_id(self, id: UUID) -> User:
         user = self.user_repository.get_by_id(id)

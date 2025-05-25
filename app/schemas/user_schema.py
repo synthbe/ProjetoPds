@@ -3,6 +3,8 @@ from typing import List
 
 from pydantic import BaseModel, EmailStr, ConfigDict
 
+from .audio_schema import AudioResponseWithPath
+
 
 class UserCreate(BaseModel):
     name: str
@@ -27,6 +29,10 @@ class UserResponse(UserBase):
     following: List[UserBase]
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class UserResponseWithAudios(UserResponse):
+    audios: List[AudioResponseWithPath]
 
 
 class FollowUserRequest(BaseModel):
