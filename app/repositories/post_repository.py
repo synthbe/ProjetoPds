@@ -1,8 +1,8 @@
 from uuid import UUID
 from sqlalchemy.orm import joinedload
 
-from app.models import Post, Audio
-from app.schemas.post_schema import PostCreate, PostUpdate
+from app.models import Post, Audio, Comment
+from app.schemas import PostCreate, PostUpdate
 
 from .repository import Repository
 
@@ -15,7 +15,11 @@ class PostRepository(Repository[Post, PostCreate, PostUpdate]):
     def get_by_id(self, id: UUID) -> Post | None:
         return (
             self.db.query(Post)
-            .options(joinedload(Post.audios))
+            .options(
+                joinedload(Post.audios),
+                joinedload(Post.author),
+                joinedload(Post.comments).joinedload(Comment.author),
+            )
             .filter(Post.id == id)
             .first()
         )
@@ -46,7 +50,11 @@ class PostRepository(Repository[Post, PostCreate, PostUpdate]):
         if theme:
             query = query.filter(Post.theme == theme)
 
-        return query.all()
+        return query.options(
+            joinedload(Post.audios),
+            joinedload(Post.author),
+            joinedload(Post.comments).joinedload(Comment.author),
+        ).all()
 
     def update(self, data: PostUpdate, model: Post) -> Post:
         data_dict = data.model_dump(exclude_unset=True)

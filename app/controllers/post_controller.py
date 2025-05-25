@@ -3,7 +3,12 @@ from fastapi import Depends, Path, Query
 
 from app.dependencies import AuthGuard
 from app.models import User
-from app.schemas.post_schema import PostCreateRequest, PostUpdate, PostResponse
+from app.schemas.post_schema import (
+    PostCreateRequest,
+    PostUpdate,
+    PostResponse,
+)
+from app.schemas.comment_schema import CommentCreateRequest
 from app.services.post_service import PostService
 
 from .controller import BaseController
@@ -49,3 +54,11 @@ class PostController(BaseController):
         @self.router.delete("/{post_id}", response_model=dict)
         def delete_post(post_id: UUID):
             return self.post_service.delete_post(post_id)
+
+        @self.router.post("/{post_id}/comments")
+        def add_comment(
+            post_id: UUID = Path(...),
+            data: CommentCreateRequest = ...,
+            user: User = Depends(AuthGuard.get_authenticated_user),
+        ):
+            return self.post_service.add_comment(post_id=post_id, data=data, user=user)

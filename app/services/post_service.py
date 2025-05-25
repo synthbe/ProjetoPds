@@ -3,8 +3,8 @@ from uuid import UUID
 from fastapi.responses import JSONResponse
 from fastapi import status
 
-from app.repositories import PostRepository, AudioRepository
-from app.schemas.post_schema import PostCreateRequest, PostCreate, PostUpdate
+from app.repositories import PostRepository, AudioRepository, CommentRepository
+from app.schemas import PostCreateRequest, PostCreate, PostUpdate, CommentCreate
 from app.exceptions import NotFoundException
 from app.models import User
 
@@ -13,6 +13,7 @@ class PostService:
     def __init__(self):
         self.post_repository = PostRepository()
         self.audio_repository = AudioRepository()
+        self.comment_repository = CommentRepository()
 
     def create_post(self, data: PostCreateRequest, user: User) -> JSONResponse:
         audio_ids = data.audio_ids
@@ -81,3 +82,23 @@ class PostService:
         updated_post = self.post_repository.update(data, post)
 
         return updated_post
+
+    def add_comment(
+        self, post_id: UUID, data: CommentCreate, user: User
+    ) -> JSONResponse:
+        post = self.post_repository.get_by_id(post_id)
+        if not post:
+            raise NotFoundException("Post not found")
+
+        self.comment_repository.create(
+            CommentCreate(
+                content=data.content,
+                post_id=post_id,
+                author_id=user.id,
+            )
+        )
+
+        return JSONResponse(
+            status_code=status.HTTP_201_CREATED,
+            content={"message": "Comment added successfully"},
+        )

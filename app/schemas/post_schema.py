@@ -3,7 +3,9 @@ from pydantic import BaseModel, Field, ConfigDict
 from typing import List, Optional
 from uuid import UUID
 
-from app.schemas import AudioPost, UserBase
+from app.schemas.audio_schema import AudioPost
+from app.schemas.user_schema import UserBase
+from app.schemas.comment_schema import CommentResponse
 
 
 class PostCreateRequest(BaseModel):
@@ -34,5 +36,6 @@ class PostResponse(BaseModel):
     pipeline_template: Optional[List[str]]
     audios: List[AudioPost] = []
     author: UserBase
+    comments: List[CommentResponse] = []
 
     model_config = ConfigDict(from_attributes=True)

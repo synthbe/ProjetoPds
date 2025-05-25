@@ -28,3 +28,7 @@ class Post(BaseModel):
         secondary="post_audio",
         back_populates="posts",
     )
+
+    comments: Mapped[List["Comment"]] = relationship(
+        back_populates="post", cascade="all, delete-orphan"
+    )
