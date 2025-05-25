@@ -1,5 +1,5 @@
 from uuid import UUID
-from sqlalchemy.orm import joinedload
+from sqlalchemy.orm import joinedload, noload
 
 from app.models import User, UserFollower
 from app.schemas.user_schema import UserCreate, UserUpdate
@@ -25,6 +25,7 @@ class UserRepository(Repository[User, UserCreate, UserUpdate]):
     def get_by_id(self, id: UUID) -> User | None:
         return (
             self.db.query(User)
+            .options(noload(User.audios))
             .options(joinedload(User.followers), joinedload(User.following))
             .filter(User.id == id)
             .first()
