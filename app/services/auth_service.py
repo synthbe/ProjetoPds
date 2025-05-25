@@ -44,7 +44,4 @@ class AuthService:
 
         token = AuthToken().generate_token(user.email)
 
-        return AuthLoginResponse(
-            access_token=token,
-            token_type="Bearer",
-        )
+        return AuthLoginResponse(access_token=token, token_type="Bearer", user=user)
