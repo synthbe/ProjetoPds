@@ -7,6 +7,7 @@ from app.schemas import AudioPost, UserBase
 
 
 class PostCreateRequest(BaseModel):
+    title: str
     theme: str
     description: Optional[str] = None
     audio_ids: List[UUID] = Field(default_factory=list)
@@ -18,6 +19,7 @@ class PostCreate(PostCreateRequest):
 
 
 class PostUpdate(BaseModel):
+    title: Optional[str] = None
     theme: Optional[str] = None
     description: Optional[str] = None
     pipeline_template: Optional[List[str]] = None
@@ -26,6 +28,7 @@ class PostUpdate(BaseModel):
 
 class PostResponse(BaseModel):
     id: UUID
+    title: str
     theme: str
     description: Optional[str]
     pipeline_template: Optional[List[str]]

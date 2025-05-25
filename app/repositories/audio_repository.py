@@ -20,13 +20,12 @@ class AudioRepository(Repository[Audio, AudioCreate, AudioUpdate]):
         return audio
 
     def get_audios_by_user_id(
-        self, user_id: UUID, limit: int = 10, offset: int = 0
+        self, user_id: UUID, limit: int | None = None
     ) -> list[Audio]:
         return (
             self.db.query(Audio)
             .filter(Audio.user_id == user_id)
             .order_by(Audio.date_in.desc())
             .limit(limit)
-            .offset(offset)
             .all()
         )

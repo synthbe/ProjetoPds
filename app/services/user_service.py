@@ -20,7 +20,7 @@ class UserService:
         if not user:
             raise NotFoundException("User not found")
 
-        audios = self.audio_repository.get_audios_by_user_id(user.id, 3)
+        audios = self.audio_repository.get_audios_by_user_id(user.id)
 
         if audios:
             user.audios = audios
