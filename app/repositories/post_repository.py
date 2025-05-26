@@ -12,7 +12,7 @@ class PostRepository(Repository[Post, PostCreate, PostUpdate]):
     def model(self) -> type[Post]:
         return Post
 
-    def get_by_id(self, id: UUID) -> Post | None:
+    def find_by_id(self, id: int | UUID) -> Post | None:
         return (
             self.db.query(Post)
             .options(

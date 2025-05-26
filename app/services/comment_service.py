@@ -12,7 +12,7 @@ class CommentService:
         self.comment_repository = CommentRepository()
 
     def find_comment_by_id(self, id: int) -> Comment:
-        comment = self.comment_repository.get_by_id(id)
+        comment = self.comment_repository.find_by_id(id)
 
         if not comment:
             raise NotFoundException("Comment not found")

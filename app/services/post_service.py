@@ -17,7 +17,7 @@ class PostService:
 
     def create_post(self, data: PostCreateRequest, user: User) -> JSONResponse:
         audio_ids = data.audio_ids
-        audios = self.audio_repository.get_by_ids(audio_ids)
+        audios = self.audio_repository.find_by_ids(audio_ids)
         audios_dict = {audio.id: audio for audio in audios}
 
         missing_audio_ids = []
@@ -45,7 +45,7 @@ class PostService:
         )
 
     def get_post_by_id(self, post_id: UUID):
-        post = self.post_repository.get_by_id(post_id)
+        post = self.post_repository.find_by_id(post_id)
 
         if not post:
             raise NotFoundException("Post not found")
@@ -61,7 +61,7 @@ class PostService:
         return self.post_repository.get_all(theme=theme, author_ids=author_ids)
 
     def delete_post(self, post_id: UUID) -> JSONResponse:
-        post = self.post_repository.get_by_id(post_id)
+        post = self.post_repository.find_by_id(post_id)
 
         if not post:
             raise NotFoundException("Post not found")
@@ -74,7 +74,7 @@ class PostService:
         )
 
     def update_post(self, post_id: UUID, data: PostUpdate):
-        post = self.post_repository.get_by_id(post_id)
+        post = self.post_repository.find_by_id(post_id)
 
         if not post:
             raise NotFoundException("Post not found")
@@ -86,7 +86,7 @@ class PostService:
     def add_comment(
         self, post_id: UUID, data: CommentCreate, user: User
     ) -> JSONResponse:
-        post = self.post_repository.get_by_id(post_id)
+        post = self.post_repository.find_by_id(post_id)
         if not post:
             raise NotFoundException("Post not found")
 

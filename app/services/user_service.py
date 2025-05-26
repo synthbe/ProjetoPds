@@ -15,7 +15,7 @@ class UserService:
         self.audio_repository = AudioRepository()
 
     def user_profile(self, user: User) -> User:
-        user = self.user_repository.get_by_id(user.id)
+        user = self.user_repository.find_by_id(user.id)
 
         if not user:
             raise NotFoundException("User not found")
@@ -58,7 +58,7 @@ class UserService:
         if not following_user:
             raise NotFoundException("User not found")
 
-        follower = self.user_repository.get_by_id(follower.id)
+        follower = self.user_repository.find_by_id(follower.id)
 
         if following_user in follower.following:
             raise ConflictException("You are already following this user")
