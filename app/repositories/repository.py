@@ -23,9 +23,7 @@ class Repository(ABC, Generic[T, C, U]):
         pass
 
     def find_by_id(self, id: int | UUID) -> T:
-        return (
-            self.db.query(self.model).filter(self.model.id == id).first()
-        )
+        return self.db.query(self.model).filter(self.model.id == id).first()
 
     def find_by_ids(self, ids: List[UUID] | List[int]) -> List[T]:
         return self.db.query(self.model).filter(self.model.id.in_(ids)).all()
@@ -45,9 +43,7 @@ class Repository(ABC, Generic[T, C, U]):
 
         return obj
 
-    def delete(self, id: int | UUID) -> T:
-        model = self.find_by_id(id)
-
+    def delete(self, model: T) -> T:
         self.db.delete(model)
         self.db.commit()
 

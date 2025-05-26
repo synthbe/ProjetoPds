@@ -19,7 +19,7 @@ class AudioService:
     def __init__(self) -> None:
         self.audio_repository = AudioRepository()
         self.audio_facade = AudioInference()
-        self.model_downlaoder = ModelDownloader()
+        self.model_downloader = ModelDownloader()
         self.allowed_types = [
             "audio/mpeg",
             "audio/wav",
@@ -35,11 +35,54 @@ class AudioService:
 
         return audio
 
-    def create(self, data: AudioCreate) -> Audio | None:
-        try:
-            self.audio_repository.create(data)
-        except Exception:
-            raise Exception("ERROR! Change message")
+    def __save_audio(
+        self,
+        file: UploadFile,
+        user_id: UUID,
+    ) -> Audio:
+        audio_id = uuid4()
+        dir_path = Path(f"uploads/{user_id}/{audio_id}/")
+        dir_path.mkdir(parents=True, exist_ok=True)
+        file_path = dir_path / file.filename
+        
+        with file_path.open("wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
+        
+        audio = self.audio_repository.create(
+            AudioCreate(
+                id=audio_id,
+                name=file.filename,  # pyright: ignore
+                data_path=str(file_path),
+                user_id=user_id,
+            )
+        )
+
+        return dir_path, audio
+
+    def __apply_audio_extraction(
+        self,
+        dir_path: Path,
+        user_id: UUID,
+        extraction_type: Literal["vocals", "instrumental", "4stems"]
+    ) -> List[Audio]:
+        self.model_downloader.download_model(extraction_type)
+
+        output_files = self.audio_facade.vocal_inference(str(dir_path), extraction_type)
+
+        created_audios = []
+
+        for output_file in output_files:
+            new_audio = self.audio_repository.create(
+                AudioCreate(
+                id=uuid4(),
+                name=output_file["name"],
+                data_path=output_file["path"],
+                user_id=user_id,
+            ))
+            
+            created_audios.append(new_audio)
+
+        return created_audios
 
     def upload(
         self,
@@ -53,37 +96,12 @@ class AudioService:
                 f"Audio type not supported. Allowed types: {allowed_types_str}"
             )
 
-        audio_id = uuid4()
-        dir_path = Path(f"uploads/{user_id}/{audio_id}/")
-        dir_path.mkdir(parents=True, exist_ok=True)
-        file_path = dir_path / file.filename # pyright: ignore
-
-        with file_path.open("wb") as buffer:
-            shutil.copyfileobj(file.file, buffer)
-
-        audio = self.audio_repository.create(
-            AudioCreate(
-                id=audio_id,
-                name=file.filename,  # pyright: ignore
-                data_path=str(file_path),
-                user_id=user_id,
-            )
-        )
-
-        self.model_downlaoder.download_model(extraction_type,)
-        created_audios = [audio]
-
-        output_files = self.audio_facade.vocal_inference(str(dir_path),extraction_type)
-        for output_file in output_files:
-            audio_file = AudioCreate(
-                id = uuid4(),
-                name=output_file["name"],
-                data_path=output_file["path"],
-                user_id=user_id,
-            )
-            created_audios.append(self.audio_repository.create(audio_file))
-
-        return created_audios
+        dir_path, audio = self.__save_audio(file, user_id)
+        extracted_audios = self.__apply_audio_extraction(dir_path, user_id, extraction_type)
+        
+        extracted_audios.insert(0, audio) 
+        
+        return extracted_audios
 
 
     def download(self, id: UUID, user_id: UUID):
@@ -104,14 +122,14 @@ class AudioService:
         )
 
     def update(self, data: AudioUpdate, id: UUID) -> Audio:
-        self.find_by_id(id)
+        audio = self.find_by_id(id)
 
         audio_updated = self.audio_repository.update(data, audio)
 
         return audio_updated
 
     def delete(self, id: UUID) -> Audio:
-        self.find_by_id(id)
+        audio = self.find_by_id(id)
 
         audio_deleted = self.audio_repository.delete(audio)
 
