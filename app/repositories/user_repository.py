@@ -22,7 +22,7 @@ class UserRepository(Repository[User, UserCreate, UserUpdate]):
 
         return follow
 
-    def find_by_id(self, id: UUID) -> User | None:
+    def find_by_id(self, id: int | UUID) -> User:
         return (
             self.db.query(User)
             .options(joinedload(User.followers), joinedload(User.following))

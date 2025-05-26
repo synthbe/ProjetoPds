@@ -34,7 +34,7 @@ class UserService:
 
         return user_deleted
 
-    def follow_user(self, follower: User, following_id: UUID) -> None:
+    def follow_user(self, follower: User, following_id: UUID) -> JSONResponse:
         if follower.id == following_id:
             raise ConflictException("You can't follow yourself")
 

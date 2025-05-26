@@ -1,3 +1,4 @@
+# pyright: basic
 from abc import ABC, abstractmethod
 from typing import List, TypeVar, Generic
 from uuid import UUID
@@ -24,9 +25,9 @@ class Repository(ABC, Generic[T, C, U]):
     def find_by_id(self, id: int | UUID) -> T:
         return (
             self.db.query(self.model).filter(self.model.id == id).first()
-        )  # pyright: ignore
+        )
 
-    def get_all(
+    def find_all(
         self,
     ) -> List[T]:
         return self.db.query(self.model).all()
