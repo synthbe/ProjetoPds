@@ -1,3 +1,4 @@
+# pyright: basic
 from abc import ABC, abstractmethod
 from typing import List, TypeVar, Generic
 from uuid import UUID
@@ -21,15 +22,15 @@ class Repository(ABC, Generic[T, C, U]):
     def model(self) -> type[T]:
         pass
 
-    def get_by_id(self, id: int | UUID) -> T:
+    def find_by_id(self, id: int | UUID) -> T:
         return (
             self.db.query(self.model).filter(self.model.id == id).first()
-        )  # pyright: ignore
+        )
 
-    def get_by_ids(self, ids: List[UUID] | List[int]) -> List[T]:
+    def find_by_ids(self, ids: List[UUID] | List[int]) -> List[T]:
         return self.db.query(self.model).filter(self.model.id.in_(ids)).all()
 
-    def get_all(
+    def find_all(
         self,
     ) -> List[T]:
         return self.db.query(self.model).all()
@@ -44,7 +45,9 @@ class Repository(ABC, Generic[T, C, U]):
 
         return obj
 
-    def delete(self, model: T) -> T:
+    def delete(self, id: int | UUID) -> T:
+        model = self.find_by_id(id)
+
         self.db.delete(model)
         self.db.commit()
 

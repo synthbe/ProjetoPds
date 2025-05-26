@@ -28,7 +28,7 @@ class UserService:
         return user
 
     def get_user_by_id(self, id: UUID) -> User:
-        user = self.user_repository.get_by_id(id)
+        user = self.user_repository.find_by_id(id)
 
         if not user:
             raise NotFoundException(f"User not found")
@@ -49,11 +49,11 @@ class UserService:
 
         return user_deleted
 
-    def follow_user(self, follower: User, following_id: UUID) -> None:
+    def follow_user(self, follower: User, following_id: UUID) -> JSONResponse:
         if follower.id == following_id:
             raise ConflictException("You can't follow yourself")
 
-        following_user = self.user_repository.get_by_id(following_id)
+        following_user = self.user_repository.find_by_id(following_id)
 
         if not following_user:
             raise NotFoundException("User not found")

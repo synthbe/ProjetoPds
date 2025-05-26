@@ -24,7 +24,7 @@ class AuthGuard:
             raise UnauthorizedException()
 
         user_repo = UserRepository()
-        user = user_repo.get_by_email(email)
+        user = user_repo.find_by_email(email)
 
         if not user:
             raise NotFoundException("User not found")

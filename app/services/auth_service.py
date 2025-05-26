@@ -15,7 +15,7 @@ class AuthService:
         self.user_repository = UserRepository()
 
     def register(self, user_create: AuthCreate):
-        if self.user_repository.get_by_email(user_create.email):
+        if self.user_repository.find_by_email(user_create.email):
             raise ConflictException("User already exists")
 
         password_hasher = PasswordHash()
@@ -32,7 +32,7 @@ class AuthService:
         return JSONResponse(content={"message": "User registered as successfully"})
 
     def login(self, login_data: AuthLogin) -> AuthLoginResponse:
-        user = self.user_repository.get_by_email(login_data.email)
+        user = self.user_repository.find_by_email(login_data.email)
 
         if not user:
             raise NotFoundException("User not found")

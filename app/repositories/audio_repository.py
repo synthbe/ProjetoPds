@@ -12,7 +12,7 @@ class AudioRepository(Repository[Audio, AudioCreate, AudioUpdate]):
         return Audio
 
     def toggle_audio_pin(self, id: UUID) -> Audio | None:
-        audio = self.get_by_id(id)
+        audio = self.find_by_id(id)
         if not audio:
             return None
         audio.pinned = not audio.pinned
