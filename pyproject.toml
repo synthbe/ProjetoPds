@@ -17,4 +17,5 @@ dependencies = [
     "gitpython>=3.1.44",
     "python-multipart>=0.0.20",
     "wxpython==4.2.2",
+    "huggingface-hub>=0.32.0",
 ]
