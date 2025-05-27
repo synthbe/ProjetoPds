@@ -40,64 +40,6 @@ class AudioService:
             raise NotFoundException("Audio not found")
         return audio
 
-    def upload(self, file: UploadFile, user_id: UUID, pipeline: List[str]) -> List[Audio]:
-        if file.content_type not in self.__ALLOWED_CONTENT_TYPES:
-            allowed_types_str = ", ".join(self.__ALLOWED_CONTENT_TYPES)
-            raise AudioTypeNotSupportedException(
-                f"Audio type not supported. Allowed types: {allowed_types_str}"
-            )
-
-        for model_key in pipeline:
-            if model_key not in MODEL_CONFIG_MAP:
-                raise ValueError(f"Unsupported model in pipeline: {model_key}")
-
-        audio_id = uuid4()
-        base_dir = Path(f"uploads/{user_id}/{audio_id}/")
-        base_dir.mkdir(parents=True, exist_ok=True)
-        original_file_path = base_dir / file.filename # pyright: ignore
-
-        with original_file_path.open("wb") as buffer:
-            shutil.copyfileobj(file.file, buffer)
-
-        # Save original audio to DB
-        audio = self.audio_repository.create(
-            AudioCreate(
-                id=audio_id,
-                name=file.filename, # pyright: ignore
-                data_path=str(original_file_path),
-                user_id=user_id,
-            )
-        )
-        created_audios = [audio]
-
-        current_input_path = base_dir
-
-        for model_key in pipeline:
-            output_files = AudioInference.pipeline_inference(str(current_input_path), model_key)
-
-            created_this_step = []
-            for file_info in output_files:
-                audio_file = AudioCreate(
-                    id=uuid4(),
-                    name=file_info["name"],
-                    data_path=file_info["path"],
-                    user_id=user_id,
-                )
-                created_audio = self.audio_repository.create(audio_file)
-                created_this_step.append(created_audio)
-
-            created_audios.extend(created_this_step)
-
-            if output_files:
-                # Set input path for next model to the folder containing first output file
-                first_output_path = Path(output_files[0]["path"]).parent
-                current_input_path = first_output_path
-            else:
-                # No output, stop pipeline
-                break
-
-        return created_audios
-
     def download(self, id: UUID, user_id: UUID):
         audio = self.find_by_id(id)
         if not audio or audio.user_id != user_id:
@@ -122,3 +64,59 @@ class AudioService:
         audio = self.find_by_id(id)
         audio_deleted = self.audio_repository.delete(audio)
         return audio_deleted
+
+    def upload(self, file: UploadFile, user_id: UUID, pipeline: List[str]) -> Audio:
+        self._validate_upload(file, pipeline)
+
+        audio_id = uuid4()
+        base_dir = Path(f"uploads/{user_id}/{audio_id}/")
+        base_dir.mkdir(parents=True, exist_ok=True)
+        original_file_path = base_dir / file.filename # pyright: ignore
+
+        with original_file_path.open("wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
+
+        # Save original audio to DB
+        original_audio = self._create_audio_instance(
+            audio_id, file.filename, str(original_file_path), user_id # pyright: ignore
+        )
+
+        current_input_path = base_dir
+        for model_key in pipeline:
+            current_input_path= self._run_pipeline_step(
+                model_key, current_input_path, user_id, original_audio.id
+            )
+
+        return original_audio
+
+    def _validate_upload(self, file: UploadFile, pipeline: List[str]) -> None:
+        if file.content_type not in self.__ALLOWED_CONTENT_TYPES:
+            allowed = ", ".join(self.__ALLOWED_CONTENT_TYPES)
+            raise AudioTypeNotSupportedException(f"Audio type not supported. Allowed: {allowed}")
+        for key in pipeline:
+            if key not in MODEL_CONFIG_MAP:
+                raise ValueError(f"Unsupported model in pipeline: {key}")
+
+    def _create_audio_instance(self, audio_id: UUID, name: str, path: str, user_id: UUID, parent_id: UUID | None = None) -> Audio:
+        return self.audio_repository.create(
+            AudioCreate(
+                id=audio_id,
+                name=name,
+                data_path=path,
+                user_id=user_id,
+                parent_audio_id=parent_id
+            )
+        )
+
+    def _run_pipeline_step(self, model_key: str, input_path: Path, user_id: UUID, parent_id: UUID) -> Path:
+        self.model_downloader.download_model(model_key)
+        outputs = self.audio_facade.pipeline_inference(str(input_path), model_key)
+        audios = []
+        for output in outputs:
+            audio = self._create_audio_instance(
+                uuid4(), output["name"], output["path"], user_id, parent_id
+            )
+            audios.append(audio)
+
+        next_input = Path(outputs[0]["path"]).parent if outputs else input_path
+        return next_input

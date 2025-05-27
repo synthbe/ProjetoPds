@@ -11,15 +11,7 @@ class AudioRepository(Repository[Audio, AudioCreate, AudioUpdate]):
     def model(self) -> type[Audio]:
         return Audio
 
-    def toggle_audio_pin(self, id: UUID) -> Audio | None:
-        audio = self.find_by_id(id)
-        if not audio:
-            return None
-        audio.pinned = not audio.pinned
-
-        return audio
-
-    def get_audios_by_user_id(
+    def find_audios_by_user_id(
         self, user_id: UUID, limit: int | None = None
     ) -> list[Audio]:
         return (
@@ -29,3 +21,7 @@ class AudioRepository(Repository[Audio, AudioCreate, AudioUpdate]):
             .limit(limit)
             .all()
         )
+
+    def is_parent(self, id: UUID) -> bool:
+        audio = self.find_by_id(id)
+        return audio.parent_audio_id is None
