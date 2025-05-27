@@ -28,6 +28,11 @@ class PostUpdate(BaseModel):
     pipeline_template: Optional[List[str]] = None
     audio_ids: Optional[List[UUID]] = None
 
+class PostAuthor(UserBase):
+    is_following: bool = False
+
+    model_config = ConfigDict(from_attributes=True)
+
 
 class PostResponse(BaseModel):
     id: UUID
@@ -36,7 +41,7 @@ class PostResponse(BaseModel):
     description: Optional[str]
     pipeline_template: Optional[List[str]]
     audios: List[AudioPost] = []
-    author: UserBase
+    author: PostAuthor
     comments: List[CommentResponse] = []
 
     created_at: datetime
