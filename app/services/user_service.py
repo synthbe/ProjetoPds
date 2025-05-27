@@ -69,3 +69,24 @@ class UserService:
             status_code=status.HTTP_200_OK,
             content={"message": f"You are following {following_user.name}"},
         )
+
+    def unfollow_user(self, follower: User, following_id: UUID) -> JSONResponse:
+        if follower.id == following_id:
+            raise ConflictException("You can't unfollow yourself")
+
+        following_user = self.user_repository.find_by_id(following_id)
+
+        if not following_user:
+            raise NotFoundException("User not found")
+
+        follower = self.user_repository.find_by_id(follower.id)
+
+        if following_user not in follower.following:
+            raise ConflictException("You are not following this user")
+
+        self.user_repository.remove_follower(follower.id, following_id)
+
+        return JSONResponse(
+            status_code=status.HTTP_200_OK,
+            content={"message": f"You have unfollowed {following_user.name}"},
+        )

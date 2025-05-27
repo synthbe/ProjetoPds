@@ -21,6 +21,14 @@ class UserRepository(Repository[User, UserCreate, UserUpdate]):
         self.db.commit()
 
         return follow
+    
+    def remove_follower(self, follower_id: UUID, following_id: UUID) -> None:
+        self.db.query(UserFollower).filter(
+            UserFollower.follower_id == follower_id,
+            UserFollower.following_id == following_id
+        ).delete()
+        
+        self.db.commit()
 
     def find_by_id(self, id: int | UUID) -> User:
         return (

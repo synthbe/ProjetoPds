@@ -28,6 +28,13 @@ class UserController(BaseController):
         ):
             return self.user_service.follow_user(user, body.user_id)
 
+        @self.router.delete("/unfollow")
+        def unfollow_user(
+            body: FollowUserRequest,
+            user: User = Depends(AuthGuard.get_authenticated_user),
+        ):
+            return self.user_service.unfollow_user(user, body.user_id)
+
         @self.router.put("/update")
         def update(
             data: UserUpdate, user: User = Depends(AuthGuard.get_authenticated_user)
