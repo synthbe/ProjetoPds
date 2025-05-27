@@ -19,7 +19,9 @@ class AudioUpdate(BaseModel):
 class AudioPost(BaseModel):
     id: UUID
     name: str
+    date_in: datetime
     data_path: str
+    date_modified: datetime
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -43,12 +45,4 @@ class AudioParentResponse(BaseModel):
     date_modified: datetime
     children: List[AudioSingleResponse]
 
-    model_config = ConfigDict(from_attributes=True)
-
-
-class AudioResponseWithPath(BaseModel):
-    id: UUID
-    name: str
-    data_path: str
-    date_modified: datetime
     model_config = ConfigDict(from_attributes=True)
