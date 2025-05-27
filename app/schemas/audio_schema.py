@@ -26,14 +26,7 @@ class AudioPost(BaseModel):
 class AudioResponse(BaseModel):
     id: UUID
     date_in: datetime
-    date_modified: datetime
-    model_config = ConfigDict(from_attributes=True)
-
-class AudioResponseWithPath(BaseModel):
-    id: UUID
     name: str
     data_path: str
-    date_in: datetime
     date_modified: datetime
-
     model_config = ConfigDict(from_attributes=True)

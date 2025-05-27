@@ -3,7 +3,7 @@ from typing import List
 
 from pydantic import BaseModel, EmailStr, ConfigDict
 
-from .audio_schema import AudioResponseWithPath
+from .audio_schema import AudioResponse
 
 
 class UserCreate(BaseModel):
@@ -32,7 +32,7 @@ class UserResponse(UserBase):
 
 
 class UserResponseWithAudios(UserResponse):
-    audios: List[AudioResponseWithPath]
+    audios: List[AudioResponse]
 
 
 class FollowUserRequest(BaseModel):
