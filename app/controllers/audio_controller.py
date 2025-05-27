@@ -22,7 +22,7 @@ class AudioController(BaseController):
         def upload(
             file: UploadFile = File(...),
             user: User = Depends(AuthGuard.get_authenticated_user),
-            extraction_type: Literal["vocals","4stems"] = Form(...)
+            extraction_type: Literal["vocals", "instrumental", "4stems",] = Form(...)
         ):
             audios = self.audio_service.upload(file, user.id, extraction_type)
             return [AudioResponse.model_validate(audio) for audio in audios]

@@ -20,6 +20,7 @@ class AudioInference:
         config_map = {
             "vocals": { "yaml": "artifacts/melbandroformers/vocals/voc_gabox.yaml", "ckpt": "artifacts/melbandroformers/vocals/voc_fv5.ckpt" },
             "4stems": {}, # Define
+            "instrumental": { "yaml": "artifacts/melbandroformers/instrumental/inst_gabox.yaml", "ckpt": "artifacts/melbandroformers/instrumental/Inst_GaboxFv8.ckpt"}
         }
 
         # ALERT! SERVER RETURNS 200 IF FILES ABOVE NOT FOUND
