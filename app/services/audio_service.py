@@ -1,7 +1,6 @@
 import shutil
 from uuid import UUID, uuid4
 from pathlib import Path
-from typing import Literal
 from typing import List
 
 from fastapi import UploadFile
@@ -11,11 +10,18 @@ from app.repositories import AudioRepository
 from app.models import Audio
 from app.schemas.audio_schema import AudioCreate, AudioUpdate
 from app.exceptions import NotFoundException, AudioTypeNotSupportedException
-from app.facade import AudioInference
+from app.facade.audio_inference_facade import AudioInference, MODEL_CONFIG_MAP
 from app.infrastructure import ModelDownloader
 
-
 class AudioService:
+    __ALLOWED_CONTENT_TYPES = [
+        "audio/mpeg",
+        "audio/wav",
+        "audio/ogg",
+        "audio/flac",
+        "audio/aac",
+    ]
+
     def __init__(self) -> None:
         self.audio_repository = AudioRepository()
         self.audio_facade = AudioInference()
@@ -32,86 +38,72 @@ class AudioService:
         audio = self.audio_repository.find_by_id(id)
         if not audio:
             raise NotFoundException("Audio not found")
-
         return audio
 
-    def __save_audio(
-        self,
-        file: UploadFile,
-        user_id: UUID,
-    ) -> Audio:
-        audio_id = uuid4()
-        dir_path = Path(f"uploads/{user_id}/{audio_id}/")
-        dir_path.mkdir(parents=True, exist_ok=True)
-        file_path = dir_path / file.filename
-        
-        with file_path.open("wb") as buffer:
-            shutil.copyfileobj(file.file, buffer)
-        
-        audio = self.audio_repository.create(
-            AudioCreate(
-                id=audio_id,
-                name=file.filename,  # pyright: ignore
-                data_path=str(file_path),
-                user_id=user_id,
-            )
-        )
-
-        return dir_path, audio
-
-    def __apply_audio_extraction(
-        self,
-        dir_path: Path,
-        user_id: UUID,
-        extraction_type: Literal["vocals", "instrumental", "4stems"]
-    ) -> List[Audio]:
-        self.model_downloader.download_model(extraction_type)
-
-        output_files = self.audio_facade.vocal_inference(str(dir_path), extraction_type)
-
-        created_audios = []
-
-        for output_file in output_files:
-            new_audio = self.audio_repository.create(
-                AudioCreate(
-                id=uuid4(),
-                name=output_file["name"],
-                data_path=output_file["path"],
-                user_id=user_id,
-            ))
-            
-            created_audios.append(new_audio)
-
-        return created_audios
-
-    def upload(
-        self,
-        file: UploadFile,
-        user_id: UUID,
-        extraction_type: Literal["vocals", "instrumental", "4stems"]
-    ) -> List[Audio]:
-        if file.content_type not in self.allowed_types:
-            allowed_types_str = ", ".join(self.allowed_types)
+    def upload(self, file: UploadFile, user_id: UUID, pipeline: List[str]) -> List[Audio]:
+        if file.content_type not in self.__ALLOWED_CONTENT_TYPES:
+            allowed_types_str = ", ".join(self.__ALLOWED_CONTENT_TYPES)
             raise AudioTypeNotSupportedException(
                 f"Audio type not supported. Allowed types: {allowed_types_str}"
             )
 
-        dir_path, audio = self.__save_audio(file, user_id)
-        extracted_audios = self.__apply_audio_extraction(dir_path, user_id, extraction_type)
-        
-        extracted_audios.insert(0, audio) 
-        
-        return extracted_audios
+        for model_key in pipeline:
+            if model_key not in MODEL_CONFIG_MAP:
+                raise ValueError(f"Unsupported model in pipeline: {model_key}")
 
+        audio_id = uuid4()
+        base_dir = Path(f"uploads/{user_id}/{audio_id}/")
+        base_dir.mkdir(parents=True, exist_ok=True)
+        original_file_path = base_dir / file.filename # pyright: ignore
+
+        with original_file_path.open("wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
+
+        # Save original audio to DB
+        audio = self.audio_repository.create(
+            AudioCreate(
+                id=audio_id,
+                name=file.filename, # pyright: ignore
+                data_path=str(original_file_path),
+                user_id=user_id,
+            )
+        )
+        created_audios = [audio]
+
+        current_input_path = base_dir
+
+        for model_key in pipeline:
+            output_files = AudioInference.pipeline_inference(str(current_input_path), model_key)
+
+            created_this_step = []
+            for file_info in output_files:
+                audio_file = AudioCreate(
+                    id=uuid4(),
+                    name=file_info["name"],
+                    data_path=file_info["path"],
+                    user_id=user_id,
+                )
+                created_audio = self.audio_repository.create(audio_file)
+                created_this_step.append(created_audio)
+
+            created_audios.extend(created_this_step)
+
+            if output_files:
+                # Set input path for next model to the folder containing first output file
+                first_output_path = Path(output_files[0]["path"]).parent
+                current_input_path = first_output_path
+            else:
+                # No output, stop pipeline
+                break
+
+        return created_audios
 
     def download(self, id: UUID, user_id: UUID):
         audio = self.find_by_id(id)
-
         if not audio or audio.user_id != user_id:
             raise NotFoundException("Audio not found.")
 
         file_path = Path(audio.data_path)
-
         if not file_path.exists():
             raise NotFoundException("Audio file not found on disk")
 
@@ -123,14 +115,10 @@ class AudioService:
 
     def update(self, data: AudioUpdate, id: UUID) -> Audio:
         audio = self.find_by_id(id)
-
         audio_updated = self.audio_repository.update(data, audio)
-
         return audio_updated
 
     def delete(self, id: UUID) -> Audio:
         audio = self.find_by_id(id)
-
         audio_deleted = self.audio_repository.delete(audio)
-
         return audio_deleted
