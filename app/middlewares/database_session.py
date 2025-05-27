@@ -2,22 +2,19 @@
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
 
-from app.infrastructure.database import DatabaseSessionManager
-
+from app.infrastructure.database.session_manager import DatabaseSessionManager
 
 class DBSessionMiddleware(BaseHTTPMiddleware):
-    def __init__(self, app):
-        super().__init__(app)
-        self.db_manager = DatabaseSessionManager()
-
     async def dispatch(self, request: Request, call_next):
-        session = self.db_manager.get_session()
+        db_session_manager = DatabaseSessionManager()
+        session = db_session_manager.get_session()
+
         try:
             response = await call_next(request)
             session.commit()
             return response
-        except Exception:
+        except Exception as e:
             session.rollback()
-            raise
+            raise e
         finally:
-            self.db_manager.remove_session()
+            db_session_manager.remove_session()
