@@ -13,6 +13,11 @@ class AudioController(BaseController):
         self.audio_service = AudioService()
 
     def add_routes(self) -> None:
+        @self.router.get("/", response_model=List[AudioParentResponse])
+        def get_all(user: User = Depends(AuthGuard.get_authenticated_user)):
+            audios = self.audio_service.get_all(user.id)
+            return [AudioParentResponse.model_validate(audio) for audio in audios]
+        
         @self.router.post("/upload", response_model=List[AudioSingleResponse])
         def upload(
             file: UploadFile = File(...),

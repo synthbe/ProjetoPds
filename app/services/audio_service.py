@@ -40,6 +40,14 @@ class AudioService:
         if not audio:
             raise NotFoundException("Audio not found")
         return audio
+    
+    def get_all(self, user_id: UUID) -> List[Audio]:
+        audios = self.audio_repository.find_audios_by_user_id(user_id)
+        
+        if not audios:
+            raise NotFoundException("No audios found for this user")
+        
+        return audios
 
     def download(self, id: UUID, user_id: UUID):
         audio = self.find_by_id(id)
