@@ -26,12 +26,13 @@ class PostController(BaseController):
             user: User = Depends(AuthGuard.get_authenticated_user),
         ):
             return self.post_service.create_post(data, user)
-        
+
         @self.router.get("/discover", response_model=list[PostResponse])
         def list_all_posts(
+            theme: str | None = Query(default=None),
             user: User = Depends(AuthGuard.get_authenticated_user),
         ):
-            return self.post_service.list_all_posts(user)
+            return self.post_service.list_all_posts(user, theme)
 
         @self.router.get("/my-posts", response_model=list[PostResponse])
         def list_my_posts(

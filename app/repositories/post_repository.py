@@ -48,7 +48,7 @@ class PostRepository(Repository[Post, PostCreate, PostUpdate]):
             query = query.filter(Post.author_id.in_(author_ids))
 
         if theme:
-            query = query.filter(Post.theme == theme)
+            query = query.filter(Post.theme.ilike(f"%{theme}%"))
 
         posts = (
             query.order_by(Post.created_at.desc())

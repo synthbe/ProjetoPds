@@ -6,7 +6,7 @@ from fastapi import status
 from app.repositories import PostRepository, AudioRepository, CommentRepository
 from app.schemas import PostCreateRequest, PostCreate, PostUpdate, CommentCreate
 from app.exceptions import NotFoundException
-from app.models import User,Post
+from app.models import User, Post
 
 
 class PostService:
@@ -51,8 +51,8 @@ class PostService:
             raise NotFoundException("Post not found")
 
         return post
-    
-    def __set_author_following_flag(self, posts:list[Post], user: User):
+
+    def __set_author_following_flag(self, posts: list[Post], user: User):
         followed_ids = {u.id for u in user.following}
 
         for post in posts:
@@ -66,16 +66,16 @@ class PostService:
     def get_feed_posts(self, user: User, theme: str | None = None):
         following_ids = [u.id for u in user.following]
         author_ids = [user.id] + following_ids
-        
+
         posts = self.post_repository.get_all(theme=theme, author_ids=author_ids)
 
         return self.__set_author_following_flag(posts, user)
 
-    def list_all_posts(self, user:User):
-        posts = self.post_repository.get_all()
+    def list_all_posts(self, user: User, theme: str | None = None):
+        posts = self.post_repository.get_all(theme=theme)
 
         return self.__set_author_following_flag(posts, user)
-    
+
     def delete_post(self, post_id: UUID) -> JSONResponse:
         post = self.post_repository.find_by_id(post_id)
 
