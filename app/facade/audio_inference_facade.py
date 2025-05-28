@@ -10,22 +10,29 @@ MODEL_CONFIG_MAP = {
     "vocals": {
         "yaml": "artifacts/melbandroformers/vocals/voc_gabox.yaml",
         "ckpt": "artifacts/melbandroformers/vocals/voc_fv5.ckpt",
+        "model_type": "mel_band_roformer",
     },
     "4stems": {
         "yaml": "artifacts/melbandroformers/4stems/4stems.yaml",
         "ckpt": "artifacts/melbandroformers/4stems/4stems.ckpt",
+        "model_type": "mel_band_roformer",
     },
     "noise_reduction": {
         "yaml": "artifacts/melbandroformers/test2/voc_gabox.yaml",
         "ckpt": "artifacts/melbandroformers/test2/voc_fv5.ckpt",
+        "model_type": "mel_band_roformer",
     },
     "instrumental": {
         "yaml": "artifacts/melbandroformers/instrumental/inst_gabox.yaml",
         "ckpt": "artifacts/melbandroformers/instrumental/Inst_GaboxFv8.ckpt",
+        "model_type": "mel_band_roformer",
     },
-    # Add more models as needed
+    "vocal_enhancer": {
+        "yaml": "artifacts/apollo/config_apollo_vocal.yaml",
+        "ckpt": "artifacts/apollo/vocal_v2.ckpt",
+        "model_type": "apollo",
+    },
 }
-
 
 class AudioInference:
     @staticmethod
@@ -49,7 +56,7 @@ class AudioInference:
             "--store_dir",
             audio_path,
             "--model_type",
-            "mel_band_roformer",
+            config["model_type"],
         ]
 
         subprocess.run(args, check=True)
