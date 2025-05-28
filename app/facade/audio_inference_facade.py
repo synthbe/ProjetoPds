@@ -21,10 +21,11 @@ MODEL_CONFIG_MAP = {
     },
     "instrumental": {
         "yaml": "artifacts/melbandroformers/instrumental/inst_gabox.yaml",
-        "ckpt": "artifacts/melbandroformers/instrumental/Inst_GaboxFv8.ckpt"
-    }
+        "ckpt": "artifacts/melbandroformers/instrumental/Inst_GaboxFv8.ckpt",
+    },
     # Add more models as needed
 }
+
 
 class AudioInference:
     @staticmethod
@@ -59,13 +60,18 @@ class AudioInference:
         for file in input_folder.iterdir():
             if not file.is_file():
                 continue
+
             output_folder_name = file.stem
             output_folder_path = input_folder / output_folder_name
+
             if not output_folder_path.exists() or not output_folder_path.is_dir():
                 continue
+
             for generated_file in output_folder_path.iterdir():
-                output_files.append({
-                    "name": generated_file.name,
-                    "path": str(generated_file.resolve()),
-                })
+                output_files.append(
+                    {
+                        "name": generated_file.name,
+                        "path": str(generated_file),
+                    }
+                )
         return output_files
